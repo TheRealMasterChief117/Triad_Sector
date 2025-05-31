@@ -12,8 +12,8 @@ public abstract partial class BaseEmitSoundComponent : Component
 
     [AutoNetworkedField]
     [ViewVariables(VVAccess.ReadWrite)]
-    [DataField(required: true)]
-    public SoundSpecifier? Sound;
+    [DataField]
+    public SoundSpecifier? Sound; // Triad - remove required field
 
     /// <summary>
     /// Play the sound at the position instead of parented to the source entity.

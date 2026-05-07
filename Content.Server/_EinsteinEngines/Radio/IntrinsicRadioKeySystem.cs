@@ -1,4 +1,3 @@
-using Content.Server.Radio.Components;
 using Content.Shared.Radio;
 using Content.Shared.Radio.Components;
 using Robust.Shared.Prototypes;

@@ -62,8 +62,8 @@ public sealed class ShipyardGridSaveSystem : EntitySystem
     private ISawmill _sawmill = default!;
     private MapLoaderSystem _mapLoader = default!;
 
-    private HashSet<Entity<SpawnOnShipLoadComponent>> _spawnOnShipLoadEntities = new();
-    private HashSet<Entity<ShipSaveLimitComponent>> _limitedEntitiesList = new();
+    private readonly HashSet<Entity<SpawnOnShipLoadComponent>> _spawnOnShipLoadEntities = new();
+    private readonly HashSet<Entity<ShipSaveLimitComponent>> _limitedEntitiesList = new();
 
     private EntityQuery<MapGridComponent> _gridQuery;
     private EntityQuery<ContainerManagerComponent> _containerManagerQuery;

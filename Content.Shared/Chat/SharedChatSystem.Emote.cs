@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using System.Collections.Immutable; // Delta V
 using Content.Shared.Chat.Prototypes;
 using Content.Shared.Speech;
 using Robust.Shared.Audio;
@@ -9,11 +8,11 @@ namespace Content.Shared.Chat;
 
 public abstract partial class SharedChatSystem
 {
-    private FrozenDictionary<string, ImmutableList<EmotePrototype>> _wordEmoteDict = FrozenDictionary<string, ImmutableList<EmotePrototype>>.Empty; // DeltaV - Multiple emotes
+    private FrozenDictionary<string, EmotePrototype> _wordEmoteDict = FrozenDictionary<string, EmotePrototype>.Empty;
 
     private void CacheEmotes()
     {
-        var dict = new Dictionary<string, ImmutableList<EmotePrototype>>(); // DeltaV - Multiple triggers for the same emote
+        var dict = new Dictionary<string, EmotePrototype>();
         var emotes = _prototypeManager.EnumeratePrototypes<EmotePrototype>();
         foreach (var emote in emotes)
         {
@@ -22,16 +21,12 @@ public abstract partial class SharedChatSystem
                 var lowerWord = word.ToLower();
                 if (dict.TryGetValue(lowerWord, out var value))
                 {
-                    // Begin DeltaV modification - Multiple emotes for the same words
-                    dict[lowerWord] = value.Add(emote);
-
-                    var errMsg = $"Duplicate of emote word {lowerWord}";
-                    Log.Warning(errMsg);
-
+                    var errMsg = $"Duplicate of emote word {lowerWord} in emotes {emote.ID} and {value.ID}";
+                    Log.Error(errMsg);
                     continue;
                 }
 
-                dict.Add(lowerWord, ImmutableList.Create(emote)); // End DeltaV modification
+                dict.Add(lowerWord, emote);
             }
         }
 
@@ -173,20 +168,14 @@ public abstract partial class SharedChatSystem
     protected bool TryEmoteChatInput(EntityUid source, string textInput)
     {
         var actionTrimmedLower = TrimPunctuation(textInput.ToLower());
-        if (!_wordEmoteDict.TryGetValue(actionTrimmedLower, out var emotes)) // DeltaV, renames to emotes
-            return false;
+        if (!_wordEmoteDict.TryGetValue(actionTrimmedLower, out var emote))
+            return true;
 
-        bool validEmote = false; // DeltaV - Multiple emotes for the same trigger
-        foreach (var emote in emotes)
-        {
-            if (!AllowedToUseEmote(source, emote))
-                continue;
+        if (!AllowedToUseEmote(source, emote))
+            return true;
 
-            TryInvokeEmoteEvent(source, emote);
-            validEmote = true; // DeltaV
-        }
+        return TryInvokeEmoteEvent(source, emote);
 
-        return validEmote; // DeltaV
     }
 
     /// <summary>

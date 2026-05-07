@@ -312,7 +312,7 @@ public sealed partial class ChatSystem : SharedChatSystem
                 SendEntityWhisper(source, message, range, null, nameOverride, language, hideLog, ignoreActionBlocker);
                 break;
             case InGameICChatType.Emote:
-                SendEntityEmote(source, message, range, nameOverride, hideLog, ignoreActionBlocker);
+                SendEntityEmote(source, message, range, nameOverride, hideLog, ignoreActionBlocker: ignoreActionBlocker);
                 break;
             // Floofstation section
             case InGameICChatType.Subtle:
@@ -833,53 +833,16 @@ public sealed partial class ChatSystem : SharedChatSystem
             ("entity", ent),
             ("message", FormattedMessage.RemoveMarkupOrThrow(action)));
 
-        if (checkEmote)
-            TryEmoteChatInput(source, action);
+        if (checkEmote &&
+            !TryEmoteChatInput(source, action))
+            return;
+
         SendInVoiceRange(ChatChannel.Emotes, name, action, wrappedMessage, obfuscated: "", obfuscatedWrappedMessage: "", source, range, author);
         if (!hideLog)
             if (name != Name(source))
-                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Emote from {ToPrettyString(source):user} as {name}: {action}");
+                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Emote from {source} as {name}: {action}");
             else
-                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Emote from {ToPrettyString(source):user}: {action}");
-    }
-
-    private void SendEntitySubtle(
-        EntityUid source,
-        string action,
-        ChatTransmitRange range,
-        string? nameOverride,
-        LanguagePrototype language,
-        bool hideLog = false,
-        bool ignoreActionBlocker = false,
-        NetUserId? author = null,
-        string? color = null
-        )
-    {
-        if (!_actionBlocker.CanEmote(source) && !ignoreActionBlocker)
-            return;
-        // get the entity's apparent name (if no override provided).
-        var ent = Identity.Entity(source, EntityManager);
-        string name = FormattedMessage.EscapeText(nameOverride ?? Name(ent));
-        // Emotes use Identity.Name, since it doesn't actually involve your voice at all.
-        var wrappedMessage = Loc.GetString("chat-manager-entity-subtle-wrap-message",
-            ("entityName", name),
-            ("entity", ent),
-            ("color", color ?? Color.White.ToHex()),
-            ("message", FormattedMessage.RemoveMarkupPermissive(action)));
-
-        foreach (var (session, data) in GetRecipients(source, WhisperClearRange))
-        {
-            if (session.AttachedEntity is not { Valid: true } listener)
-                continue;
-            if (MessageRangeCheck(session, data, range) == MessageRangeCheckResult.Disallowed)
-                continue;
-            _chatManager.ChatMessageToOne(ChatChannel.Emotes, action, wrappedMessage, source, false, session.Channel);
-        }
-        if (!hideLog)
-            if (name != Name(source))
-                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Subtle from {ToPrettyString(source):user} as {name}: {action}");
-            else
-                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Subtle from {ToPrettyString(source):user}: {action}");
+                _adminLogger.Add(LogType.Chat, LogImpact.Low, $"Emote from {source}: {action}");
     }
 
     // ReSharper disable once InconsistentNaming

@@ -1,6 +1,8 @@
 using Content.Shared.Clothing.Components;
 using Content.Shared.Humanoid;
 using Content.Shared.Inventory;
+using Content.Shared.Item.ItemToggle;
+using Content.Shared.Item.ItemToggle.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
@@ -11,6 +13,7 @@ public sealed class HideLayerClothingSystem : EntitySystem
     [Dependency] private readonly SharedHumanoidAppearanceSystem _humanoid = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly InventorySystem _inventory = default!; // Triad - fix modsuit hide layers not updating
+    [Dependency] private readonly ItemToggleSystem _itemToggle = default!; // Triad - fix modsuit hide layers not updating
 
     public override void Initialize()
     {
@@ -116,9 +119,11 @@ public sealed class HideLayerClothingSystem : EntitySystem
     {
         // TODO Generalize this
         // I.e., make this and mask component use some generic toggleable.
-
         if (!clothing.Comp1.HideOnToggle)
             return true;
+
+        if (TryComp(clothing, out ItemToggleComponent? itemToggle))
+            return _itemToggle.IsActivated((clothing.Owner, itemToggle));
 
         if (!TryComp(clothing, out MaskComponent? mask))
             return true;

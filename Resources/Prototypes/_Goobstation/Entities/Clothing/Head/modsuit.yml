@@ -51,7 +51,6 @@
     - type: IdentityBlocker
     - type: IngestionBlocker
     - type: HideLayerClothing
-      hideOnToggle: true
       layers:
         Hair: HEAD
         Snout: HEAD

@@ -1,8 +1,6 @@
 using Content.Shared.Clothing.Components;
 using Content.Shared.Humanoid;
 using Content.Shared.Inventory;
-using Content.Shared.Item.ItemToggle;
-using Content.Shared.Item.ItemToggle.Components;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
@@ -13,7 +11,6 @@ public sealed class HideLayerClothingSystem : EntitySystem
     [Dependency] private readonly SharedHumanoidAppearanceSystem _humanoid = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly InventorySystem _inventory = default!; // Triad - fix modsuit hide layers not updating
-    [Dependency] private readonly ItemToggleSystem _itemToggle = default!; // Triad - fix modsuit hide layers not updating
 
     public override void Initialize()
     {
@@ -21,8 +18,8 @@ public sealed class HideLayerClothingSystem : EntitySystem
         SubscribeLocalEvent<HideLayerClothingComponent, ClothingGotEquippedEvent>(OnHideGotEquipped);
         SubscribeLocalEvent<HideLayerClothingComponent, ItemMaskToggledEvent>(OnHideToggled);
 
-        SubscribeLocalEvent<HideLayerClothingComponent, ComponentInit>(OnHideLayerAdd); // Triad - Update component state on component toggle
-        SubscribeLocalEvent<HideLayerClothingComponent, ComponentRemove>(OnHideLayerRemove); // Triad - Update component state on component toggle
+        SubscribeLocalEvent<HideLayerClothingComponent, ComponentInit>(OnHideLayerInit); // Triad - Update component state on component toggle
+        SubscribeLocalEvent<HideLayerClothingComponent, ComponentShutdown>(OnHideLayerShutdown); // Triad - Update component state on component toggle
     }
 
     private void OnHideToggled(Entity<HideLayerClothingComponent> ent, ref ItemMaskToggledEvent args)
@@ -42,7 +39,7 @@ public sealed class HideLayerClothingSystem : EntitySystem
     }
 
     // Triad - Update component state on component toggle
-    private void OnHideLayerAdd(Entity<HideLayerClothingComponent> ent, ref ComponentInit args)
+    private void OnHideLayerInit(Entity<HideLayerClothingComponent> ent, ref ComponentInit args)
     {
         if (!_inventory.TryGetContainingEntity(ent.Owner, out var equipee))
             return;
@@ -50,7 +47,7 @@ public sealed class HideLayerClothingSystem : EntitySystem
         SetLayerVisibility(ent!, equipee.Value, hideLayers: true);
     }
 
-    private void OnHideLayerRemove(Entity<HideLayerClothingComponent> ent, ref ComponentRemove args)
+    private void OnHideLayerShutdown(Entity<HideLayerClothingComponent> ent, ref ComponentShutdown args)
     {
         if (!_inventory.TryGetContainingEntity(ent.Owner, out var equipee))
             return;
@@ -121,9 +118,6 @@ public sealed class HideLayerClothingSystem : EntitySystem
         // I.e., make this and mask component use some generic toggleable.
         if (!clothing.Comp1.HideOnToggle)
             return true;
-
-        if (TryComp(clothing, out ItemToggleComponent? itemToggle))
-            return _itemToggle.IsActivated((clothing.Owner, itemToggle));
 
         if (!TryComp(clothing, out MaskComponent? mask))
             return true;

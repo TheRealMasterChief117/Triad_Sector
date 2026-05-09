@@ -10,12 +10,16 @@ public sealed class HideLayerClothingSystem : EntitySystem
 {
     [Dependency] private readonly SharedHumanoidAppearanceSystem _humanoid = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly InventorySystem _inventory = default!; // Triad - fix modsuit hide layers not updating
 
     public override void Initialize()
     {
         SubscribeLocalEvent<HideLayerClothingComponent, ClothingGotUnequippedEvent>(OnHideGotUnequipped);
         SubscribeLocalEvent<HideLayerClothingComponent, ClothingGotEquippedEvent>(OnHideGotEquipped);
         SubscribeLocalEvent<HideLayerClothingComponent, ItemMaskToggledEvent>(OnHideToggled);
+
+        SubscribeLocalEvent<HideLayerClothingComponent, ComponentInit>(OnHideLayerAdd); // Triad - Update component state on component toggle
+        SubscribeLocalEvent<HideLayerClothingComponent, ComponentRemove>(OnHideLayerRemove); // Triad - Update component state on component toggle
     }
 
     private void OnHideToggled(Entity<HideLayerClothingComponent> ent, ref ItemMaskToggledEvent args)
@@ -33,6 +37,24 @@ public sealed class HideLayerClothingSystem : EntitySystem
     {
         SetLayerVisibility(ent!, args.Wearer, hideLayers: false);
     }
+
+    // Triad - Update component state on component toggle
+    private void OnHideLayerAdd(Entity<HideLayerClothingComponent> ent, ref ComponentInit args)
+    {
+        if (!_inventory.TryGetContainingEntity(ent.Owner, out var equipee))
+            return;
+
+        SetLayerVisibility(ent!, equipee.Value, hideLayers: true);
+    }
+
+    private void OnHideLayerRemove(Entity<HideLayerClothingComponent> ent, ref ComponentRemove args)
+    {
+        if (!_inventory.TryGetContainingEntity(ent.Owner, out var equipee))
+            return;
+
+        SetLayerVisibility(ent!, equipee.Value, hideLayers: false);
+    }
+    // Triad end
 
     private void SetLayerVisibility(
         Entity<HideLayerClothingComponent?, ClothingComponent?> clothing,

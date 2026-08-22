@@ -1,3 +1,7 @@
+secret-coordinates-coordinates-reveal-popup-success = Revealed coordinates!
+secret-coordinates-coordinates-reveal-popup-fail = Could not detect coordinate location.
+secret-coordinates-coordinates-unknown = - ???????
+
 secret-coordinates-sol-directive-text =
     {"[head=3][color=#287AB8]FEDERATED SOLARIAN REPUBLIC[/color]"}
     {"[italic][color=#7e6137]MINISTRY OF DEFENCE[/color][/italic][/head]"}
@@ -8,7 +12,8 @@ secret-coordinates-sol-directive-text =
     Solarian Directive: ███████ personnel, this message is to inform you that a FSR resupply cache has been sent to the sector. Coordinates are provided below.
     A biometric lock has been included in this document, and coordinates will be redacted until a valid SD DNA signature is given.
 
-    Resupply cache coordinates: ██████████████
+    Resupply cache coordinates:
+    {$coordinates}
 
     {"[color=#287AB8]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[/color]"}
     {"                                  [color=#a62d2d][head=3]CONFIDENTIAL[/head][/color]"}

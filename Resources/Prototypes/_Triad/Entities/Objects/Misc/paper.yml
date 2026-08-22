@@ -1,4 +1,20 @@
 - type: entity
+  parent: [Paper, BaseClass2AShipContrabandSilent]
+  id: PaperSolarianRepublic
+  name: FSR digital document
+  description: A professional digital document used by the Federated Solarian Republic to sent out important messages.
+  components:
+  - type: Sprite
+    sprite: _Triad/Objects/Misc/bureaucracy.rsi
+    layers:
+    - state: sol_paper
+    - state: sol_paper_words
+      map: ["enum.PaperVisualLayers.Writing"]
+      visible: false
+  - type: PaperVisuals
+    backgroundModulate: "#d0e0fd"
+
+- type: entity
   parent: BoxFolderBase
   id: BoxFolderTdf
   name: TDF folder

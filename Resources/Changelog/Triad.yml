@@ -4093,3 +4093,122 @@ Entries:
   id: 2539
   time: '2026-08-22T15:25:44.0000000+00:00'
   url: https://github.com/Triad-Sector/Triad_Sector/pull/532
+- author: rebaserHEAD
+  changes:
+    - type: Fix
+      message: >-
+        Ship saves no longer fail outright when a smart fridge, a wired docking
+        button, an assembled grenade, a severed limb or an ore silo link is
+        aboard.
+    - type: Fix
+      message: >-
+        Loading a saved ship no longer leaves a stocked smart fridge reporting
+        itself empty.
+    - type: Tweak
+      message: >-
+        Flatpackers and their machine boards can now be saved with a ship
+        instead of being seized.
+  id: 2540
+  time: '2026-08-22T21:20:52.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/540
+- author: gaywolfgirl6
+  changes:
+    - type: Tweak
+      message: Reverted the 12 Gauge Box ammo count nerf
+  id: 2541
+  time: '2026-08-23T09:05:47.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/541
+- author: rebaserHEAD
+  changes:
+    - type: Add
+      message: >-
+        Artifacts have been reworked into node-graph puzzles: perform trigger
+        chains inside an unlock window to unlock nodes and fire their effects.
+    - type: Add
+      message: >-
+        Every artifact rolls a severity profile. Effects climb from gentle roots
+        toward a peak danger class, and the analysis console reveals the shape
+        and peak as you earn them.
+    - type: Add
+      message: >-
+        Solving more of an artifact compounds its Extraction Bonus, up to five
+        times the research points and sale price on a full solve.
+    - type: Add
+      message: The node scanner shows which triggers an awake artifact has registered.
+    - type: Remove
+      message: >-
+        Artifexium and artifact glue no longer exist, and artifact fragments can
+        no longer be ground into reagents.
+    - type: Tweak
+      message: Artifact fragments now craft into an artifact at ten fragments.
+  id: 2542
+  time: '2026-08-24T01:35:38.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/542
+- author: Eillyrea
+  changes: []
+  id: 2543
+  time: '2026-08-24T12:20:40.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/544
+- author: rebaserHEAD
+  changes:
+    - type: Fix
+      message: >-
+        Ships saved before the xenoarchaeology rework load again if they had an
+        artifact aboard. The artifact comes back as a new unsolved one.
+  id: 2544
+  time: '2026-08-24T19:09:39.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/545
+- author: rebaserHEAD
+  changes:
+    - type: Fix
+      message: >-
+        Artifacts stored on a ship no longer come back inert, unsolvable, or
+        wearing the wrong sprite.
+    - type: Fix
+      message: >-
+        Artifact effects and triggers are now local to the ship running the
+        artifact. Docking next to someone no longer lets their artifact gas your
+        hull, and their salvage magnet no longer solves your nodes.
+    - type: Fix
+      message: The blink and phasing artifact effects now actually do something.
+    - type: Fix
+      message: >-
+        The analysis console says so when there is no research server to bank
+        points to, instead of quietly banking nothing.
+    - type: Fix
+      message: Artifact "friendly fauna" no longer spawns angry bees and space bears.
+  id: 2545
+  time: '2026-08-25T07:01:22.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/546
+- author: Wuffindy
+  changes:
+    - type: Tweak
+      message: Changed Most if not all ballistic bullet to new sprites
+  id: 2546
+  time: '2026-08-25T12:06:04.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/543
+- author: Stedar111
+  changes:
+    - type: Add
+      message: Added the HZD Besieger, a high-end, researchable, and stompy modsuit!
+  id: 2547
+  time: '2026-08-25T12:13:50.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/505
+- author: TheRealMasterChief117
+  changes:
+    - type: Fix
+      message: Fixed some technology disks not giving you the recipes on the disk.
+  id: 2548
+  time: '2026-08-25T14:02:27.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/548
+- author: TheRealMasterChief117
+  changes:
+    - type: Add
+      message: >-
+        Added a notice label to the player factions tab in the character profile
+        editor to clear up any confusion
+    - type: Tweak
+      message: (ADMIN) Company toolshed command renamed to Faction toolshed commands
+  id: 2549
+  time: '2026-08-25T19:29:05.0000000+00:00'
+  url: https://github.com/Triad-Sector/Triad_Sector/pull/549

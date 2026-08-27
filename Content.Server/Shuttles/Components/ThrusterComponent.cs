@@ -4,6 +4,7 @@ using Content.Server.Shuttles.Systems;
 using Content.Shared.Construction.Prototypes;
 using Content.Shared.Damage;
 using Content.Shared.DeviceLinking; // Frontier
+using Content.Shared.Whitelist; // Triad
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
@@ -53,7 +54,8 @@ namespace Content.Server.Shuttles.Components
 
         // Used for burns
 
-        public List<EntityUid> Colliding = new();
+        [ViewVariables] // Triad
+        public HashSet<EntityUid> Colliding = new();
 
         public bool Firing = false;
 
@@ -97,6 +99,12 @@ namespace Content.Server.Shuttles.Components
         /// </summary>
         [DataField]
         public float HeatSignatureRatio = 40f;
+
+        /// <summary>
+        ///     Triad - Whitelist for what type of entities block thruster paths.
+        /// </summary>
+        [DataField]
+        public EntityWhitelist? BlockWhitelist;
     }
 
     public enum ThrusterType

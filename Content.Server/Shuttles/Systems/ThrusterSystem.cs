@@ -555,7 +555,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         var (_, worldPosRot) = _transform.GetWorldPositionRotation(xform);
         var dir = xform.LocalRotation.Opposite().GetCardinalDir().ToAngle() + worldPosRot;
         var ray = new CollisionRay(mapCords.Position, dir.ToWorldVec(), (int) StructureMask);
-        var rayResults = _physics.IntersectRay(mapCords.MapId, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false);
+        var rayResults = _physics.IntersectRay(mapCords.MapId, ray, ent.Comp2.BlockRange, ignoredEnt: ent.Owner, returnOnFirstHit: false);
 
         //Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {mapCords}");
         //Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {ent.Comp.LocalRotation.Opposite()} {ent.Comp.LocalRotation.Opposite().GetCardinalDir()}");
@@ -566,15 +566,15 @@ public sealed partial class ThrusterSystem : EntitySystem
             var hitEnt = hit.HitEntity;
             var hitxForm = Transform(hitEnt);
 
-            if (_whitelist.IsBlacklistFail(ent.Comp2.BlockBlacklist, hitEnt))
+            // Needs to be on the same grid
+            if (hitxForm.GridUid != xform.GridUid)
                 continue;
 
             // Below this distance, thrusters will get burnt by the fixture so it is un-needed
             if (hit.Distance < _maximumThrusterBurnDistance)
                 continue;
 
-            // Needs to be on the same grid
-            if (hitxForm.GridUid != xform.GridUid)
+            if (_whitelist.IsBlacklistFail(ent.Comp2.BlockBlacklist, hitEnt))
                 continue;
 
             exposed = false;

@@ -68,7 +68,6 @@ public sealed partial class ThrusterSystem : EntitySystem
     private readonly HashSet<Entity<TransformComponent>> _fixtureLookupEnts = new();
 
     private EntityQuery<MapGridComponent> _mapGridQuery;
-    private EntityQuery<TransformComponent> _xformQuery;
     private EntityQuery<MobStateComponent> _mobStateQuery;
     // Triad End
 
@@ -79,7 +78,6 @@ public sealed partial class ThrusterSystem : EntitySystem
         base.Initialize();
 
         _mapGridQuery = GetEntityQuery<MapGridComponent>(); // Triad
-        _xformQuery = GetEntityQuery<TransformComponent>(); // Triad
         _mobStateQuery = GetEntityQuery<MobStateComponent>(); // Triad
 
         SubscribeLocalEvent<ThrusterComponent, ActivateInWorldEvent>(OnActivateThruster);
@@ -640,7 +638,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
             foreach (var uid in comp.Colliding)
             {
-                if (!Exists(uid) || !_xformQuery.HasComp(uid))
+                if (!Exists(uid))
                 {
                     _toRemoveColliding.Add(uid);
                     continue;

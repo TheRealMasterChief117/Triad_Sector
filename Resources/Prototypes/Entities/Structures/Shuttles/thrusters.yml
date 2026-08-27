@@ -32,7 +32,13 @@
       damage:
         types:
           Heat: 60
-      burnShape: ["-0.4,0.5","-0.1,6.1","0.1,6.1","0.4,0.5"] # Triad, change burn shape
+      # Triad Start - Thruster restriction changes
+      burnShape: ["-0.4,0.5","-0.1,6.1","0.1,6.1","0.4,0.5"]
+      blockBlacklist:
+        tags:
+        - Window
+        - Wall
+      # Triad End
     - type: ThermalSignature # Mono
     - type: InteractionOutline
     - type: Sprite

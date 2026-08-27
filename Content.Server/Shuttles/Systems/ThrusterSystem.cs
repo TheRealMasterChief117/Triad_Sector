@@ -56,10 +56,6 @@ public sealed partial class ThrusterSystem : EntitySystem
 
     // Triad Start
     private readonly ProtoId<TagPrototype> _ignoreThrusterDamageTag = "IgnoreThrusterDamage";
-    private readonly EntityWhitelist _thrusterBlockBlacklist = new()
-    {
-        Tags = new List<ProtoId<TagPrototype>> { "Window", "Wall" }
-    };
 
     private readonly float _maximumThrusterBurnDistance = 6.0f;
     private readonly float _distanceBurnDamageMultiplier = 0.85f;
@@ -72,6 +68,7 @@ public sealed partial class ThrusterSystem : EntitySystem
     private readonly HashSet<Entity<TransformComponent>> _fixtureLookupEnts = new();
 
     private EntityQuery<MapGridComponent> _mapGridQuery;
+    private EntityQuery<TransformComponent> _xformQuery;
     private EntityQuery<MobStateComponent> _mobStateQuery;
     // Triad End
 
@@ -82,6 +79,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         base.Initialize();
 
         _mapGridQuery = GetEntityQuery<MapGridComponent>(); // Triad
+        _xformQuery = GetEntityQuery<TransformComponent>(); // Triad
         _mobStateQuery = GetEntityQuery<MobStateComponent>(); // Triad
 
         SubscribeLocalEvent<ThrusterComponent, ActivateInWorldEvent>(OnActivateThruster);
@@ -150,7 +148,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
                 args.PushMarkup(nozzleDir);
 
-                var exposed = NozzleExposed((uid, xform));
+                var exposed = NozzleExposed((uid, xform, component));
 
                 var nozzleText =
                     Loc.GetString(exposed ? "thruster-comp-nozzle-exposed" : "thruster-comp-nozzle-not-exposed");
@@ -533,13 +531,13 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (!component.RequireSpace)
             return true;
 
-        return NozzleExposed((uid, xform));
+        return NozzleExposed((uid, xform, component));
     }
 
     // Triad Start - thruster changes
-    private bool NozzleExposed(Entity<TransformComponent> ent)
+    private bool NozzleExposed(Entity<TransformComponent, ThrusterComponent> ent)
     {
-        var xform = ent.Comp;
+        var xform = ent.Comp1;
 
         if (xform.GridUid == null)
             return true;
@@ -551,11 +549,13 @@ public sealed partial class ThrusterSystem : EntitySystem
         return _turf.IsSpace(tile.Tile) && NozzleExposedRaycast(ent);
     }
 
-    private bool NozzleExposedRaycast(Entity<TransformComponent> ent)
+    private bool NozzleExposedRaycast(Entity<TransformComponent, ThrusterComponent> ent)
     {
-        var mapCords = _transform.ToMapCoordinates(ent.Comp.Coordinates);
-        var (_, worldPosRot) = _transform.GetWorldPositionRotation(ent.Comp);
-        var dir = ent.Comp.LocalRotation.Opposite().GetCardinalDir().ToAngle() + worldPosRot;
+        var xform = ent.Comp1;
+
+        var mapCords = _transform.ToMapCoordinates(xform.Coordinates);
+        var (_, worldPosRot) = _transform.GetWorldPositionRotation(xform);
+        var dir = xform.LocalRotation.Opposite().GetCardinalDir().ToAngle() + worldPosRot;
         var ray = new CollisionRay(mapCords.Position, dir.ToWorldVec(), (int) StructureMask);
         var rayResults = _physics.IntersectRay(mapCords.MapId, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false);
 
@@ -568,7 +568,7 @@ public sealed partial class ThrusterSystem : EntitySystem
             var hitEnt = hit.HitEntity;
             var hitxForm = Transform(hitEnt);
 
-            if (_whitelist.IsBlacklistFail(_thrusterBlockBlacklist, hitEnt))
+            if (_whitelist.IsBlacklistFail(ent.Comp2.BlockBlacklist, hitEnt))
                 continue;
 
             // Below this distance, thrusters will get burnt by the fixture so it is un-needed
@@ -576,7 +576,7 @@ public sealed partial class ThrusterSystem : EntitySystem
                 continue;
 
             // Needs to be on the same grid
-            if (hitxForm.GridUid != ent.Comp.GridUid)
+            if (hitxForm.GridUid != xform.GridUid)
                 continue;
 
             exposed = false;
@@ -640,7 +640,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
             foreach (var uid in comp.Colliding)
             {
-                if (!Exists(uid))
+                if (!Exists(uid) || !_xformQuery.HasComp(uid))
                 {
                     _toRemoveColliding.Add(uid);
                     continue;

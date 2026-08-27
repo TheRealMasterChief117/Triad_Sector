@@ -113,10 +113,10 @@ namespace Content.Server.Shuttles.Components
         public float HeatSignatureRatio = 40f;
 
         /// <summary>
-        ///     Triad - Whitelist for what type of entities block thruster paths.
+        ///     Triad - Which type of entities block thruster paths?
         /// </summary>
         [DataField]
-        public EntityWhitelist? BlockWhitelist;
+        public EntityWhitelist? BlockBlacklist;
     }
 
     public enum ThrusterType

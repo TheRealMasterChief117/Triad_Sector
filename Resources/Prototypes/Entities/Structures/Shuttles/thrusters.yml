@@ -31,7 +31,7 @@
     - type: Thruster
       damage:
         types:
-          Heat: 40
+          Heat: 60
       burnShape: ["-0.4,0.5","-0.1,6.1","0.1,6.1","0.4,0.5"] # Triad, change burn shape
     - type: ThermalSignature # Mono
     - type: InteractionOutline

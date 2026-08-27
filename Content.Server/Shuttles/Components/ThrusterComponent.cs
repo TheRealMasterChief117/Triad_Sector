@@ -5,6 +5,7 @@ using Content.Shared.Construction.Prototypes;
 using Content.Shared.Damage;
 using Content.Shared.DeviceLinking; // Frontier
 using Content.Shared.Whitelist; // Triad
+using Robust.Shared.Audio; // Triad
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
@@ -54,8 +55,19 @@ namespace Content.Server.Shuttles.Components
 
         // Used for burns
 
-        [ViewVariables] // Triad
+        // Triad start
+        [ViewVariables]
         public HashSet<EntityUid> Colliding = new();
+
+        [DataField]
+        public LocId BurnPopupOther = "thruster-comp-burn-others";
+
+        [DataField]
+        public LocId BurnPopupSelf = "thruster-comp-burn-self";
+
+        [DataField]
+        public SoundSpecifier? BurnSound = new SoundPathSpecifier("/Audio/Effects/lightburn.ogg");
+        // Triad end
 
         public bool Firing = false;
 

@@ -120,7 +120,7 @@ namespace Content.Server.Shuttles.Components
 
         /// <summary>
         ///     The range of unobstructed view that is needed for a thruster to count as 'exposed to space'.
-        ///     'Obstructed' view are tiles with walls or windows on them.
+        ///     'Obstructed view' are tiles with walls or windows on them.
         /// </summary>
         [DataField]
         public float BlockRange = 15.5f;

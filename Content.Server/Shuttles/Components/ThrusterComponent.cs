@@ -119,7 +119,7 @@ namespace Content.Server.Shuttles.Components
         public EntityWhitelist? BlockBlacklist;
 
         /// <summary>
-        ///     The range of unobstructed view that is needed for a thruster to count as 'exposed to space'.
+        ///     Triad - The range of unobstructed view that is needed for a thruster to count as 'exposed to space'.
         ///     'Obstructed view' are tiles with walls or windows on them.
         /// </summary>
         [DataField]

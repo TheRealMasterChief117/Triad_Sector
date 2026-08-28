@@ -53,11 +53,6 @@ public sealed partial class ThrusterSystem : EntitySystem
     // This is done for each direction available.
 
     // Triad Start
-    private readonly float _maximumThrusterBurnDistance = 6.0f;
-    private readonly float _maximumMobThrusterBurnDistance = 2.0f;
-    private readonly float _distanceBurnDamageMultiplier = 0.85f;
-    private readonly float _mobBurnDamageMultiplier = 0.65f;
-
     private const CollisionGroup StructureMask = CollisionGroup.FullTileMask;
     private const CollisionGroup BurnMask = CollisionGroup.FullTileMask;
 
@@ -588,7 +583,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
                 // Below this distance, thrusters will get burnt by the fixture so it is un-needed
                 // Only applies for the directions the same as the thruster nozzle
-                if (hit.Distance < _maximumThrusterBurnDistance && nozzleFacingDir == cardinalDir)
+                if (hit.Distance < ent.Comp2.MaximumThrusterBurnRange && nozzleFacingDir == cardinalDir)
                     continue;
 
                 // Entities that fit the block whitelist were in the thruster's path. This path is blocked.
@@ -690,10 +685,10 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (!thrusterXform.Coordinates.TryDistance(EntityManager, collider.Comp.Coordinates, out var distance))
             return;
 
-        if (distance > _maximumThrusterBurnDistance)
+        if (distance > ent.Comp.MaximumThrusterBurnRange)
             return;
 
-        var damageMultiplier = 1.5 * Math.Pow(_distanceBurnDamageMultiplier, distance);
+        var damageMultiplier = 1.5 * Math.Pow(ent.Comp.DistanceBurnDamageMultiplier, distance);
         var damage = ent.Comp.Damage * damageMultiplier;
 
         // If the collider is on a seperate grid
@@ -705,10 +700,10 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (_mobStateQuery.HasComp(collider))
         {
             // Mobs get can avoid being burnt closer
-            if (distance > _maximumMobThrusterBurnDistance)
+            if (distance > ent.Comp.MaximumMobThrusterBurnRange)
                 return;
 
-            damage *= _mobBurnDamageMultiplier;
+            damage *= ent.Comp.MobBurnDamageMultiplier;
         }
 
         _damageable.TryChangeDamage(collider, damage, origin: ent.Owner, canSever: false);

@@ -67,6 +67,18 @@ namespace Content.Server.Shuttles.Components
 
         [DataField]
         public SoundSpecifier? BurnSound = new SoundPathSpecifier("/Audio/Effects/lightburn.ogg");
+
+        [DataField]
+        public float MaximumThrusterBurnRange = 5.5f;
+
+        [DataField]
+        public float MaximumMobThrusterBurnRange = 2.0f;
+
+        [DataField]
+        public float MobBurnDamageMultiplier = 0.65f;
+
+        [DataField]
+        public float DistanceBurnDamageMultiplier = 0.85f;
         // Triad end
 
         public bool Firing = false;

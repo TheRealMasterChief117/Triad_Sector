@@ -33,7 +33,7 @@
         types:
           Heat: 60
       # Triad Start - Thruster restriction changes
-      burnShape: ["-0.4,0.5","-0.1,6.1","0.1,6.1","0.4,0.5"]
+      burnShape: ["-0.4,0.5","-0.1,6.0","0.1,6.0","0.4,0.5"]
       blockThrusterWhitelist:
         components:
         - Door

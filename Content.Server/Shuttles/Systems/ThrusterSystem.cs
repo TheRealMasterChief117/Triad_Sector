@@ -22,14 +22,13 @@ using Content.Shared.Power;
 using Content.Server.Construction; // Frontier
 using Content.Shared.DeviceLinking.Events; // Frontier
 using Robust.Shared.Physics; // Triad
-using Content.Shared.Tag; // Triad
-using Robust.Shared.Prototypes; // Triad
 using Content.Shared.Whitelist; // Triad
 using Content.Shared.Mobs.Components; // Triad
 using Robust.Shared.Audio.Systems; // Triad
 using Content.Shared.Popups; // Triad
 using Content.Shared.IdentityManagement; // Triad
-using Robust.Shared.Player; // Triad
+using Robust.Shared.Player;
+using System.Linq; // Triad
 
 namespace Content.Server.Shuttles.Systems;
 
@@ -43,7 +42,6 @@ public sealed partial class ThrusterSystem : EntitySystem
     [Dependency] private SharedPhysicsSystem _physics = default!; // Triad - thruster changes
     [Dependency] private SharedTransformSystem _transform = default!; // Triad - thruster changes
     [Dependency] private EntityWhitelistSystem _whitelist = default!; // Triad - thruster changes
-    [Dependency] private TagSystem _tag = default!; // Triad - thruster changes
     [Dependency] private EntityLookupSystem _lookup = default!; // Triad - thruster changes
     [Dependency] private AmbientSoundSystem _ambient = default!;
     [Dependency] private FixtureSystem _fixtureSystem = default!;
@@ -55,9 +53,8 @@ public sealed partial class ThrusterSystem : EntitySystem
     // This is done for each direction available.
 
     // Triad Start
-    private readonly ProtoId<TagPrototype> _ignoreThrusterDamageTag = "IgnoreThrusterDamage";
-
     private readonly float _maximumThrusterBurnDistance = 6.0f;
+    private readonly float _maximumMobThrusterBurnDistance = 2.0f;
     private readonly float _distanceBurnDamageMultiplier = 0.85f;
     private readonly float _mobBurnDamageMultiplier = 0.65f;
 
@@ -66,6 +63,8 @@ public sealed partial class ThrusterSystem : EntitySystem
 
     private readonly HashSet<EntityUid> _toRemoveColliding = new();
     private readonly HashSet<Entity<TransformComponent>> _fixtureLookupEnts = new();
+
+    private readonly Direction[] _thrusterBlockCheckDirections = [Direction.North, Direction.East, Direction.South, Direction.West];
 
     private EntityQuery<MapGridComponent> _mapGridQuery;
     private EntityQuery<MobStateComponent> _mobStateQuery;
@@ -152,6 +151,14 @@ public sealed partial class ThrusterSystem : EntitySystem
                     Loc.GetString(exposed ? "thruster-comp-nozzle-exposed" : "thruster-comp-nozzle-not-exposed");
 
                 args.PushMarkup(nozzleText);
+
+                // Triad Start
+                if (!exposed)
+                {
+                    var clearSpaceText = Loc.GetString("thruster-comp-need-clear-space");
+                    args.PushMarkup(clearSpaceText);
+                }
+                // Triad End
             }
         }
     }
@@ -551,37 +558,52 @@ public sealed partial class ThrusterSystem : EntitySystem
     {
         var xform = ent.Comp1;
 
-        var mapCords = _transform.ToMapCoordinates(xform.Coordinates);
-        var (_, worldPosRot) = _transform.GetWorldPositionRotation(xform);
-        var dir = xform.LocalRotation.Opposite().GetCardinalDir().ToAngle() + worldPosRot;
-        var ray = new CollisionRay(mapCords.Position, dir.ToWorldVec(), (int) StructureMask);
-        var rayResults = _physics.IntersectRay(mapCords.MapId, ray, ent.Comp2.BlockRange, ignoredEnt: ent.Owner, returnOnFirstHit: false);
+        var (worldPosition, worldRot) = _transform.GetWorldPositionRotation(xform);
+        var nozzleFacingDir = xform.LocalRotation.Opposite().ToWorldVec().GetDir();
 
-        //Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {mapCords}");
-        //Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {ent.Comp.LocalRotation.Opposite()} {ent.Comp.LocalRotation.Opposite().GetCardinalDir()}");
-
-        var exposed = true;
-        foreach (var hit in rayResults)
+        var clearPaths = 0;
+        foreach (var cardinalDir in _thrusterBlockCheckDirections)
         {
-            var hitEnt = hit.HitEntity;
-            var hitxForm = Transform(hitEnt);
+            // At least one path is already clear, no need to check again
+            if (clearPaths > 0)
+                break;
 
-            // Needs to be on the same grid
-            if (hitxForm.GridUid != xform.GridUid)
-                continue;
+            var rayDirection = cardinalDir.ToAngle() + worldRot.Opposite() + nozzleFacingDir.ToAngle();
+            var ray = new CollisionRay(worldPosition, rayDirection.ToWorldVec(), (int)StructureMask);
+            var rayResults = _physics.IntersectRay(xform.MapID, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false).ToList();
 
-            // Below this distance, thrusters will get burnt by the fixture so it is un-needed
-            if (hit.Distance < _maximumThrusterBurnDistance)
-                continue;
+            //Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {mapCords}");
+            //Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {ent.Comp.LocalRotation.Opposite()} {ent.Comp.LocalRotation.Opposite().GetCardinalDir()}");
+            //Log.Debug($"RAY ANGLE: {rayDirection.GetCardinalDir()}");
 
-            if (_whitelist.IsBlacklistFail(ent.Comp2.BlockBlacklist, hitEnt))
-                continue;
+            var blocked = false;
+            foreach (var hit in rayResults)
+            {
+                var hitEnt = hit.HitEntity;
+                var hitxForm = Transform(hitEnt);
 
-            exposed = false;
-            break;
+                // Needs to be on the same grid
+                if (hitxForm.GridUid != xform.GridUid)
+                    continue;
+
+                // Below this distance, thrusters will get burnt by the fixture so it is un-needed
+                // Only applies for the directions the same as the thruster nozzle
+                if (hit.Distance < _maximumThrusterBurnDistance && nozzleFacingDir == cardinalDir)
+                    continue;
+
+                // Entities that fit the block whitelist were in the thruster's path. This path is blocked.
+                if (_whitelist.IsWhitelistPass(ent.Comp2.BlockThrusterWhitelist, hitEnt))
+                {
+                    blocked = true;
+                    break;
+                }
+            }
+
+            if (!blocked)
+                clearPaths++;
         }
 
-        return exposed;
+        return clearPaths > 0;
     }
 
     #region Burning
@@ -605,7 +627,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
             _fixtureLookupEnts.Clear();
 
-            var transform = new Transform(xform.Coordinates.Position, 0);
+            var transform = new Transform(xform.Coordinates.Position, xform.LocalRotation);
 
             // Get anchored entities that are intersecting since they don't trigger the start collide event
             foreach (var (fixtureId, fixture) in fixtures.Fixtures)
@@ -621,7 +643,7 @@ public sealed partial class ThrusterSystem : EntitySystem
 
             foreach ((var ent, var collider) in _fixtureLookupEnts)
             {
-                if (_tag.HasTag(ent, _ignoreThrusterDamageTag))
+                if (!_whitelist.CheckBoth(ent, comp.BurnBlacklist, comp.BurnWhitelist))
                     continue;
 
                 // Needs to be on the same grid or in space
@@ -660,7 +682,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (ent.Comp.Damage == null)
             return;
 
-        if (_tag.HasTag(collider.Owner, _ignoreThrusterDamageTag))
+        if (!_whitelist.CheckBoth(collider, ent.Comp.BurnBlacklist, ent.Comp.BurnWhitelist))
             return;
 
         var thrusterXform = Transform(ent.Owner);
@@ -681,7 +703,13 @@ public sealed partial class ThrusterSystem : EntitySystem
 
         // Mobs take less damage due to the hitboxes
         if (_mobStateQuery.HasComp(collider))
+        {
+            // Mobs get can avoid being burnt closer
+            if (distance > _maximumMobThrusterBurnDistance)
+                return;
+
             damage *= _mobBurnDamageMultiplier;
+        }
 
         _damageable.TryChangeDamage(collider, damage, origin: ent.Owner, canSever: false);
         _audio.PlayPvs(ent.Comp.BurnSound, ent.Owner);
@@ -692,6 +720,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         var selfMsg = Loc.GetString(ent.Comp.BurnPopupSelf, ("thruster", ent));
         _popup.PopupEntity(selfMsg, collider, collider, PopupType.MediumCaution);
     }
+    // Triad End
 
     private void OnStartCollide(EntityUid uid, ThrusterComponent component, ref StartCollideEvent args)
     {
@@ -700,7 +729,6 @@ public sealed partial class ThrusterSystem : EntitySystem
 
         component.Colliding.Add(args.OtherEntity);
     }
-    // Triad End
 
     private void OnEndCollide(EntityUid uid, ThrusterComponent component, ref EndCollideEvent args)
     {

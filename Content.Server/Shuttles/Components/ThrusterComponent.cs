@@ -116,14 +116,19 @@ namespace Content.Server.Shuttles.Components
         ///     Triad - Which type of entities block thruster paths?
         /// </summary>
         [DataField]
-        public EntityWhitelist? BlockBlacklist;
+        public EntityWhitelist? BlockThrusterWhitelist;
 
         /// <summary>
-        ///     Triad - The range of unobstructed view that is needed for a thruster to count as 'exposed to space'.
-        ///     'Obstructed view' are tiles with walls or windows on them.
+        ///     Triad - Which type of entities can be burnt by thrusters?
         /// </summary>
         [DataField]
-        public float BlockRange = 15.5f;
+        public EntityWhitelist? BurnWhitelist;
+
+        /// <summary>
+        ///     Triad - Which type of entities cannot be burnt by thrusters?
+        /// </summary>
+        [DataField]
+        public EntityWhitelist? BurnBlacklist;
     }
 
     public enum ThrusterType

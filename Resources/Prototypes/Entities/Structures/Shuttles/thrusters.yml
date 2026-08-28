@@ -34,10 +34,22 @@
           Heat: 60
       # Triad Start - Thruster restriction changes
       burnShape: ["-0.4,0.5","-0.1,6.1","0.1,6.1","0.4,0.5"]
-      blockBlacklist:
+      blockThrusterWhitelist:
+        components:
+        - Door
         tags:
         - Window
         - Wall
+      burnWhitelist:
+        components:
+        - MobState
+        tags:
+        - Window
+        - Wall
+        - Structure
+      burnBlacklist:
+        tags:
+        - IgnoreThrusterDamage
       # Triad End
     - type: ThermalSignature # Mono
     - type: InteractionOutline

@@ -75,10 +75,13 @@ namespace Content.Server.Shuttles.Components
         public float MaximumMobThrusterBurnRange = 2.0f;
 
         [DataField]
-        public float MobBurnDamageMultiplier = 0.65f;
+        public float MobBurnDamageMultiplier = 0.3f;
 
         [DataField]
         public float DistanceBurnDamageMultiplier = 0.85f;
+
+        [DataField]
+        public List<ThrusterBlockRay> BlockCheckRays = new();
         // Triad end
 
         public bool Firing = false;
@@ -149,4 +152,23 @@ namespace Content.Server.Shuttles.Components
         // Angular meaning rotational.
         Angular,
     }
+
+    // Triad Start
+    [DataDefinition]
+    public sealed partial class ThrusterBlockRay
+    {
+        /// <summary>
+        /// The direction/angle the raycast goes.
+        /// </summary>
+        [DataField]
+        public Direction Angle = Direction.Invalid;
+
+        /// <summary>
+        /// How much is the ray offset from the 'origin' of the entity's position?
+        /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
+        /// </summary>
+        [DataField]
+        public Vector2 WorldOffset = Vector2.Zero;
+    }
+    // Triad end
 }

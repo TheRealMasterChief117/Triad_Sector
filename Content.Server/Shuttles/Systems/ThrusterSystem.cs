@@ -59,9 +59,6 @@ public sealed partial class ThrusterSystem : EntitySystem
 
     private readonly HashSet<EntityUid> _toRemoveColliding = new();
     private readonly HashSet<Entity<TransformComponent>> _fixtureLookupEnts = new();
-
-    private readonly Direction[] _thrusterBlockCheckDirections = [Direction.North, Direction.East, Direction.South, Direction.West];
-
     private EntityQuery<MapGridComponent> _mapGridQuery;
     private EntityQuery<MobStateComponent> _mobStateQuery;
     // Triad End

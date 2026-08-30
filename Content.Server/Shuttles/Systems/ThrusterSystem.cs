@@ -557,8 +557,9 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (xform.GridUid == null)
             return true;
 
-        var worldRot = _transform.GetWorldRotation(xform).Opposite(); // Opposite to match nozzle direction
-        var nozzleFacingDir = xform.LocalRotation.Opposite().ToWorldVec().GetDir();
+        var worldRot = _transform.GetWorldRotation(xform);
+        var localRot = xform.LocalRotation.ToWorldVec();
+        var thrusterFacingDir = localRot.ToAngle();
 
         var clearPaths = 0;
         foreach (var rayPreset in ent.Comp2.BlockCheckRays)
@@ -568,19 +569,29 @@ public sealed partial class ThrusterSystem : EntitySystem
                 break;
 
             var direction = rayPreset.Angle;
-            var worldOffset = rayPreset.WorldOffset;
+
+            // The offset to the origin. This is offset one tile to the north of the nozzle
+            var rayOffset = rayPreset.OriginOffset - localRot;
+
+            //Log.Debug($"origin offset: {rayPreset.OriginOffset}");
+            //Log.Debug($"local rot: {localRot}");
+            //Log.Debug($"ray offset: {rayOffset}");
 
             // Offset local coords based on grid, then convert it to map coordinates
-            var offsetCoords = new EntityCoordinates(xform.GridUid.Value, xform.LocalPosition + worldOffset);
+            var offsetCoords = new EntityCoordinates(xform.GridUid.Value, xform.LocalPosition + rayOffset);
+
+            // World coords of the start of the ray
             var rayWorldPos = _transform.ToMapCoordinates(offsetCoords).Position;
-            var rayDirection = direction.ToAngle() + worldRot + nozzleFacingDir.ToAngle();
+
+            // World angle of the ray
+            var rayDirection = direction.ToAngle() + worldRot + thrusterFacingDir;
 
             var ray = new CollisionRay(rayWorldPos, rayDirection.ToWorldVec(), (int)StructureMask);
             var rayResults = _physics.IntersectRay(xform.MapID, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false).ToList();
 
-            Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {rayWorldPos}");
-            Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {nozzleFacingDir}");
-            Log.Debug($"RAY ANGLE: {rayDirection.GetCardinalDir()}");
+            //Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {rayWorldPos}");
+            //Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {thrusterFacingDir}");
+            //Log.Debug($"RAY ANGLE: {rayDirection.GetCardinalDir()}");
 
             var blocked = false;
             foreach (var hit in rayResults)
@@ -590,11 +601,6 @@ public sealed partial class ThrusterSystem : EntitySystem
 
                 // Needs to be on the same grid
                 if (hitxForm.GridUid != xform.GridUid)
-                    continue;
-
-                // Below this distance, thrusters will get burnt by the fixture so it is un-needed
-                // Only applies for the directions the same as the thruster nozzle
-                if (hit.Distance < ent.Comp2.MaximumThrusterBurnRange && nozzleFacingDir == direction)
                     continue;
 
                 // Entities that fit the block whitelist were in the thruster's path. This path is blocked.

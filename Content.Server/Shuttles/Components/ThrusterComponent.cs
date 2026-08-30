@@ -157,8 +157,9 @@ namespace Content.Server.Shuttles.Components
     [DataDefinition]
     public sealed partial class ThrusterBlockRay
     {
-        /// <summary>
-        /// The direction/angle the raycast goes.
+        /// </summary>
+        /// The direction/angle the raycast goes, relative to the entity's rotation.
+        /// Remember that a standard thruster's fire faces "south"
         /// </summary>
         [DataField]
         public Direction Angle = Direction.Invalid;
@@ -168,7 +169,7 @@ namespace Content.Server.Shuttles.Components
         /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
         /// </summary>
         [DataField]
-        public Vector2 WorldOffset = Vector2.Zero;
+        public Vector2 OriginOffset = Vector2.Zero;
     }
     // Triad end
 }

@@ -45,21 +45,21 @@
         Heat: 360
     blockCheckRays: # Every angle the raycasts check to see if the thruster is blocked
     - angle: North
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: NorthEast
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: NorthWest
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: South
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: SouthWest
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: SouthEast
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: West
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     - angle: East
-      worldOffset: 0.5,-0.5
+      originOffset: 0.5,-0.5
     # Triad End
   - type: Sprite
     sprite: _Mono/Structures/Shuttles/thruster_large.rsi

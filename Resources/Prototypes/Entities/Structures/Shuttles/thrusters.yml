@@ -50,15 +50,46 @@
       burnBlacklist:
         tags:
         - IgnoreThrusterDamage
+      requiredRayQuality: 3 # You need 3 'ray points' to have the thruster work.
       blockCheckRays: # Every angle the raycasts check to see if the thruster is blocked
-      - angle: North
-      - angle: NorthEast
-      - angle: NorthWest
-      - angle: South
-      - angle: SouthWest
-      - angle: SouthEast
-      - angle: West
-      - angle: East
+      # Thruster facing direction
+      - angle: 0
+        quality: 2
+
+      # just far enough left or right to see past a 3 deep hole at an angle
+      - angle: 16
+        offset: -0.45, 0.45
+        quality: 1
+      - angle: -16
+        offset: 0.45, 0.45
+        quality: 1
+
+      # 45s left and right of center
+      - angle: 45
+        offset: 0.0, 0.25
+        quality: 2
+      - angle: -45
+        offset: 0.0, 0.25
+        quality: 2
+
+      # directly left and right
+      - angle: 90
+        quality: 2
+      - angle: -90
+        quality: 2
+
+      # 45 degrees left and right of reverse
+      - angle: 135
+        offset: 0.0, 0.25
+        quality: 2
+
+      - angle: -135
+        offset: 0.0, 0.25
+        quality: 2
+
+      # directly reverse
+      - angle: 180
+        quality: 2
       # Triad End
     - type: ThermalSignature # Mono
     - type: InteractionOutline

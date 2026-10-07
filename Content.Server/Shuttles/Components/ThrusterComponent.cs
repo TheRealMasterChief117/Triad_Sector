@@ -82,6 +82,9 @@ namespace Content.Server.Shuttles.Components
 
         [DataField]
         public List<ThrusterBlockRay> BlockCheckRays = new();
+
+        [DataField]
+        public int RequiredRayQuality = 3;
         // Triad end
 
         public bool Firing = false;
@@ -122,7 +125,7 @@ namespace Content.Server.Shuttles.Components
 
         // Mono
         /// <summary>
-        ///     If we have a <see cref="ThermalSignatureComponent">, heat signature output per thrust while working.
+        ///     If we have a <see cref="ThermalSignatureComponent"/>, heat signature output per thrust while working.
         /// </summary>
         [DataField]
         public float HeatSignatureRatio = 40f;
@@ -157,19 +160,64 @@ namespace Content.Server.Shuttles.Components
     [DataDefinition]
     public sealed partial class ThrusterBlockRay
     {
-        /// </summary>
+        /// <summary>
         /// The direction/angle the raycast goes, relative to the entity's rotation.
-        /// Remember that a standard thruster's fire faces "south"
+        ///
+        /// In radians, clockwise from the direction the thruster is facing
         /// </summary>
-        [DataField]
-        public Direction Angle = Direction.Invalid;
+        private Robust.Shared.Maths.Angle _angle;
+
+        public Robust.Shared.Maths.Angle AngleInRadians() { return _angle; }
+
+        /// <summary>
+        /// The direction/angle the raycast goes, relative to the entity's rotation.
+        ///
+        /// In degrees, clockwise from the direction the thruster is facing
+        /// </summary>
+        [DataField(required: true)]
+        public double Angle
+        {
+            get
+            {
+                var t = _angle.Degrees % 360.0d;
+                if (t < 0)
+                    t += 360.0d;
+
+                return t - 180.0d;
+            }
+            set
+            {
+                var t = ( value + 180.0 ) % 360.0d;
+                if (t < 0)
+                    t += 360.0d;
+                _angle = Robust.Shared.Maths.Angle.FromDegrees(t);
+            }
+        }
+
+        public float OffsetX = 0f;
+        public float OffsetY = 0f;
 
         /// <summary>
         /// How much is the ray offset from the 'origin' of the entity's position?
         /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
+        /// +y is an offset in the direction of the fire
         /// </summary>
         [DataField]
-        public Vector2 OriginOffset = Vector2.Zero;
+        public Vector2 Offset
+        {
+            get => new(OffsetX, OffsetY);
+            set
+            {
+                OffsetX = value.X;
+                OffsetY = value.Y;
+            }
+        }
+
+        /// <summary>
+        /// How much is this ray worth if it can see space
+        /// </summary>
+        [DataField]
+        public int Quality = 2;
     }
     // Triad end
 }

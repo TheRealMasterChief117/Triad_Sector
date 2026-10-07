@@ -555,33 +555,35 @@ public sealed partial class ThrusterSystem : EntitySystem
             return true;
 
         var worldRot = _transform.GetWorldRotation(xform);
-        var localRot = xform.LocalRotation.ToWorldVec();
-        var thrusterFacingDir = localRot.ToAngle();
+        var localRot = xform.LocalRotation.ToVec();
+        var localPos = xform.LocalPosition;
 
-        var clearPaths = 0;
+        var gridUID = xform.GridUid.Value;
+
+        var clearQuality = 0d;
         foreach (var rayPreset in ent.Comp2.BlockCheckRays)
         {
-            // At least one path is already clear, no need to check again
-            if (clearPaths > 0)
+            // Each ray is worth a certain amount of points, defined in the prototype.
+            // You need a certain amounts of points for this thruster to be considered 'clear to space'.
+            // Default minimum ray quality is 3.
+            if (clearQuality >= ent.Comp2.RequiredRayQuality)
                 break;
 
-            var direction = rayPreset.Angle;
+            var direction = rayPreset.AngleInRadians();
 
-            // The offset to the origin. This is offset one tile to the north of the nozzle
-            var rayOffset = rayPreset.OriginOffset - localRot;
-
-            //Log.Debug($"origin offset: {rayPreset.OriginOffset}");
-            //Log.Debug($"local rot: {localRot}");
-            //Log.Debug($"ray offset: {rayOffset}");
+            // rotate the offset into the correct space
+            var rayOffset = new Vector2(
+                rayPreset.OffsetX*localRot.X - rayPreset.OffsetY*localRot.Y,
+                rayPreset.OffsetX*localRot.Y + rayPreset.OffsetY*localRot.X);
 
             // Offset local coords based on grid, then convert it to map coordinates
-            var offsetCoords = new EntityCoordinates(xform.GridUid.Value, xform.LocalPosition + rayOffset);
+            var offsetCoords = new EntityCoordinates(gridUID, localPos + rayOffset);
 
             // World coords of the start of the ray
             var rayWorldPos = _transform.ToMapCoordinates(offsetCoords).Position;
 
             // World angle of the ray
-            var rayDirection = direction.ToAngle() + worldRot + thrusterFacingDir;
+            var rayDirection = direction + worldRot;
 
             var ray = new CollisionRay(rayWorldPos, rayDirection.ToWorldVec(), (int)StructureMask);
             var rayResults = _physics.IntersectRay(xform.MapID, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false).ToList();
@@ -609,10 +611,10 @@ public sealed partial class ThrusterSystem : EntitySystem
             }
 
             if (!blocked)
-                clearPaths++;
+                clearQuality += rayPreset.Quality;
         }
 
-        return clearPaths > 0;
+        return clearQuality >= ent.Comp2.RequiredRayQuality;
     }
 
     #region Burning

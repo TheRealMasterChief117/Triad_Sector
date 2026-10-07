@@ -43,6 +43,7 @@
       burnWhitelist:
         components:
         - MobState
+        - Door
         tags:
         - Window
         - Wall

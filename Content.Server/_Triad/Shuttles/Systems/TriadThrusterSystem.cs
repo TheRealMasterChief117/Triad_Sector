@@ -208,8 +208,6 @@ public sealed partial class TriadThrusterSystem : EntitySystem
         var rayProfileTable = ThrusterBlockingProfileTable[(int)ent.Comp2.ThrusterProfile];
         var requiredQuality = rayProfileTable.RequiredQuality;
 
-        Log.Debug($"AHHH {ToPrettyString(ent.Owner)}: {rayProfileTable.Rays.Count}");
-
         foreach (var rayPreset in rayProfileTable.Rays)
         {
             // Each ray is worth a certain amount of points, defined in the prototype.

@@ -43,68 +43,7 @@
     damage:
       types:
         Heat: 360
-    requiredRayQuality: 5 # You need 5 'ray points' for the thruster to work.
-    blockCheckRays: # Every angle the raycasts check to see if the thruster is blocked
-    # Thruster facing direction
-    - angle: 0
-      offset: 0, 1
-      quality: 2
-
-    - angle: 0
-      offset: 1, 1
-      quality: 2
-
-    # just far enough left or right to see past a 3 deep hole at an angle
-    - angle: 16
-      offset: 0.5, 0.45
-      quality: 1
-    - angle: -16
-      offset: 0.5, 0.45
-      quality: 1
-
-    # just far enough left or right to see past a 2 deep hole at an angle
-    - angle: 25
-      offset: 0.5, 0.45
-      quality: 1
-    - angle: -25
-      offset: 0.5, 0.45
-      quality: 1
-
-    # 45s left and right of center
-    - angle: 45
-      offset: 0.5, 1
-      quality: 3
-    - angle: -45
-      offset: 0.5, 1
-      quality: 3
-
-    # directly left and right
-    - angle: 90
-      offset: 1, 0
-      quality: 2
-    - angle: 90
-      offset: 1, 1
-      quality: 2
-    - angle: -90
-      quality: 2
-    - angle: -90
-      offset: 0, 1
-      quality: 2
-
-    # 45 degrees left and right of reverse
-    - angle: 135
-      offset: 0.5, 0
-      quality: 2
-    - angle: -135
-      offset: 0.5, 0
-      quality: 2
-
-    # directly reverse
-    - angle: 180
-      quality: 2
-    - angle: 180
-      quality: 2
-      offset: 1, 0
+    thrusterProfile: Large # Gets the correct raycast profile
   # Triad End
   - type: Sprite
     sprite: _Mono/Structures/Shuttles/thruster_large.rsi

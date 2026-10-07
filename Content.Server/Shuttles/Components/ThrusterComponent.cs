@@ -1,5 +1,5 @@
 using System.Numerics;
-using Content.Server._NF.M_Emp;
+using Content.Server._Triad.Shuttles.Systems;
 using Content.Server.Shuttles.Systems;
 using Content.Shared.Construction.Prototypes;
 using Content.Shared.Damage;
@@ -79,12 +79,6 @@ namespace Content.Server.Shuttles.Components
 
         [DataField]
         public float DistanceBurnDamageMultiplier = 0.85f;
-
-        [DataField]
-        public List<ThrusterBlockRay> BlockCheckRays = new();
-
-        [DataField]
-        public int RequiredRayQuality = 3;
         // Triad end
 
         public bool Firing = false;
@@ -147,6 +141,13 @@ namespace Content.Server.Shuttles.Components
         /// </summary>
         [DataField]
         public EntityWhitelist? BurnBlacklist;
+
+        /// <summary>
+        ///     Triad - Which type of thruster is this?
+        ///     This is used for raycast checks to determine if the thruster's path is blocked.
+        /// </summary>
+        [DataField]
+        public ThrusterBlockingProfile ThrusterProfile = ThrusterBlockingProfile.Small;
     }
 
     public enum ThrusterType
@@ -155,69 +156,4 @@ namespace Content.Server.Shuttles.Components
         // Angular meaning rotational.
         Angular,
     }
-
-    // Triad Start
-    [DataDefinition]
-    public sealed partial class ThrusterBlockRay
-    {
-        /// <summary>
-        /// The direction/angle the raycast goes, relative to the entity's rotation.
-        ///
-        /// In radians, clockwise from the direction the thruster is facing
-        /// </summary>
-        private Robust.Shared.Maths.Angle _angle;
-
-        public Robust.Shared.Maths.Angle AngleInRadians() { return _angle; }
-
-        /// <summary>
-        /// The direction/angle the raycast goes, relative to the entity's rotation.
-        ///
-        /// In degrees, clockwise from the direction the thruster is facing
-        /// </summary>
-        [DataField(required: true)]
-        public double Angle
-        {
-            get
-            {
-                var t = _angle.Degrees % 360.0d;
-                if (t < 0)
-                    t += 360.0d;
-
-                return t - 180.0d;
-            }
-            set
-            {
-                var t = ( value + 180.0 ) % 360.0d;
-                if (t < 0)
-                    t += 360.0d;
-                _angle = Robust.Shared.Maths.Angle.FromDegrees(t);
-            }
-        }
-
-        public float OffsetX = 0f;
-        public float OffsetY = 0f;
-
-        /// <summary>
-        /// How much is the ray offset from the 'origin' of the entity's position?
-        /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
-        /// +y is an offset in the direction of the fire
-        /// </summary>
-        [DataField]
-        public Vector2 Offset
-        {
-            get => new(OffsetX, OffsetY);
-            set
-            {
-                OffsetX = value.X;
-                OffsetY = value.Y;
-            }
-        }
-
-        /// <summary>
-        /// How much is this ray worth if it can see space
-        /// </summary>
-        [DataField]
-        public int Quality = 2;
-    }
-    // Triad end
 }

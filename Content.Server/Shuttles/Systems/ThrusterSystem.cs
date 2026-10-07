@@ -20,6 +20,7 @@ using Robust.Shared.Utility;
 using Content.Shared.Localizations;
 using Content.Shared.Power;
 using Content.Server.Construction; // Frontier
+using Content.Server._Triad.Shuttles.Systems;
 using Content.Shared.DeviceLinking.Events; // Frontier
 using Robust.Shared.Physics; // Triad
 using Content.Shared.Whitelist; // Triad
@@ -28,8 +29,6 @@ using Robust.Shared.Audio.Systems; // Triad
 using Content.Shared.Popups; // Triad
 using Content.Shared.IdentityManagement; // Triad
 using Robust.Shared.Player; // Triad
-using System.Linq; // Triad
-using Robust.Shared.Map; // Triad
 
 namespace Content.Server.Shuttles.Systems;
 
@@ -49,18 +48,19 @@ public sealed partial class ThrusterSystem : EntitySystem
     [Dependency] private DamageableSystem _damageable = default!;
     [Dependency] private SharedPointLightSystem _light = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
+    [Dependency] private TriadThrusterSystem _triadThruster = default!;
+
+    // Triad Start
+    [Dependency] private EntityQuery<MobStateComponent> _mobStateQuery;
+    [Dependency] private EntityQuery<MapGridComponent> _mapGridQuery;
 
     // Essentially whenever thruster enables we update the shuttle's available impulses which are used for movement.
     // This is done for each direction available.
 
-    // Triad Start
-    private const CollisionGroup StructureMask = CollisionGroup.FullTileMask;
     private const CollisionGroup BurnMask = CollisionGroup.FullTileMask;
 
     private readonly HashSet<EntityUid> _toRemoveColliding = new();
     private readonly HashSet<Entity<TransformComponent>> _fixtureLookupEnts = new();
-    private EntityQuery<MapGridComponent> _mapGridQuery;
-    private EntityQuery<MobStateComponent> _mobStateQuery;
     // Triad End
 
     public const string BurnFixture = "thruster-burn";
@@ -68,9 +68,6 @@ public sealed partial class ThrusterSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
-
-        _mapGridQuery = GetEntityQuery<MapGridComponent>(); // Triad
-        _mobStateQuery = GetEntityQuery<MobStateComponent>(); // Triad
 
         SubscribeLocalEvent<ThrusterComponent, ActivateInWorldEvent>(OnActivateThruster);
         SubscribeLocalEvent<ThrusterComponent, ComponentInit>(OnThrusterInit);
@@ -150,6 +147,7 @@ public sealed partial class ThrusterSystem : EntitySystem
                 {
                     var clearSpaceText = Loc.GetString("thruster-comp-need-clear-space");
                     args.PushMarkup(clearSpaceText);
+                    DisableThruster(uid, component);
                 }
                 // Triad End
             }
@@ -544,77 +542,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         var mapGrid = _mapGridQuery.Comp(xform.GridUid.Value); // Triad - change to query
         var tile = _mapSystem.GetTileRef(xform.GridUid.Value, mapGrid, new Vector2i((int)Math.Floor(x), (int)Math.Floor(y)));
 
-        return _turf.IsSpace(tile.Tile) && NozzleExposedRaycast(ent);
-    }
-
-    private bool NozzleExposedRaycast(Entity<TransformComponent, ThrusterComponent> ent)
-    {
-        var xform = ent.Comp1;
-
-        if (xform.GridUid == null)
-            return true;
-
-        var worldRot = _transform.GetWorldRotation(xform);
-        var localRot = xform.LocalRotation.ToVec();
-        var localPos = xform.LocalPosition;
-
-        var gridUID = xform.GridUid.Value;
-
-        var clearQuality = 0d;
-        foreach (var rayPreset in ent.Comp2.BlockCheckRays)
-        {
-            // Each ray is worth a certain amount of points, defined in the prototype.
-            // You need a certain amounts of points for this thruster to be considered 'clear to space'.
-            // Default minimum ray quality is 3.
-            if (clearQuality >= ent.Comp2.RequiredRayQuality)
-                break;
-
-            var direction = rayPreset.AngleInRadians();
-
-            // rotate the offset into the correct space
-            var rayOffset = new Vector2(
-                rayPreset.OffsetX*localRot.X - rayPreset.OffsetY*localRot.Y,
-                rayPreset.OffsetX*localRot.Y + rayPreset.OffsetY*localRot.X);
-
-            // Offset local coords based on grid, then convert it to map coordinates
-            var offsetCoords = new EntityCoordinates(gridUID, localPos + rayOffset);
-
-            // World coords of the start of the ray
-            var rayWorldPos = _transform.ToMapCoordinates(offsetCoords).Position;
-
-            // World angle of the ray
-            var rayDirection = direction + worldRot;
-
-            var ray = new CollisionRay(rayWorldPos, rayDirection.ToWorldVec(), (int)StructureMask);
-            var rayResults = _physics.IntersectRay(xform.MapID, ray, ignoredEnt: ent.Owner, returnOnFirstHit: false).ToList();
-
-            //Log.Debug($"world pos of {ToPrettyString(ent.Owner)}: {rayWorldPos}");
-            //Log.Debug($"raycast of {ToPrettyString(ent.Owner)}: {thrusterFacingDir}");
-            //Log.Debug($"RAY ANGLE: {rayDirection.GetCardinalDir()}");
-
-            var blocked = false;
-            foreach (var hit in rayResults)
-            {
-                var hitEnt = hit.HitEntity;
-                var hitxForm = Transform(hitEnt);
-
-                // Needs to be on the same grid
-                if (hitxForm.GridUid != xform.GridUid)
-                    continue;
-
-                // Entities that fit the block whitelist were in the thruster's path. This path is blocked.
-                if (_whitelist.IsWhitelistPass(ent.Comp2.BlockThrusterWhitelist, hitEnt))
-                {
-                    blocked = true;
-                    break;
-                }
-            }
-
-            if (!blocked)
-                clearQuality += rayPreset.Quality;
-        }
-
-        return clearQuality >= ent.Comp2.RequiredRayQuality;
+        return _turf.IsSpace(tile.Tile) && _triadThruster.NozzleExposedRaycast(ent);
     }
 
     #region Burning
@@ -742,7 +670,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (args.OurFixtureId != BurnFixture)
             return;
 
-        if (args.OtherEntity == ent.Owner)
+        if (args.OtherEntity == uid)
             return;
 
         component.Colliding.Add(args.OtherEntity);
@@ -753,7 +681,7 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (args.OurFixtureId != BurnFixture)
             return;
 
-        if (args.OtherEntity == ent.Owner)
+        if (args.OtherEntity == uid)
             return;
 
         component.Colliding.Remove(args.OtherEntity);

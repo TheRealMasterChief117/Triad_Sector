@@ -33,13 +33,14 @@
       damage:
         types:
           Heat: 200
-      burnShape: ["-0.4,0.5","-0.1,6.0","0.1,6.0","0.4,0.5"]
+      burnShape: ["-0.25,0.5","-0.1,6.0","0.1,6.0","0.25,0.5"]
       blockThrusterWhitelist:
         components:
         - Door
         tags:
         - Window
         - Wall
+        - Diagonal
       burnWhitelist:
         components:
         - MobState
@@ -48,6 +49,7 @@
         - Window
         - Wall
         - Structure
+        - Diagonal
       burnBlacklist:
         tags:
         - IgnoreThrusterDamage

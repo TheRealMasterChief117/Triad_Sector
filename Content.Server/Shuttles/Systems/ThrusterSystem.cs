@@ -654,6 +654,10 @@ public sealed partial class ThrusterSystem : EntitySystem
 
             foreach ((var ent, var collider) in _fixtureLookupEnts)
             {
+                // It should not burn itself
+                if (ent == thruster)
+                    continue;
+
                 if (!_whitelist.CheckBoth(ent, comp.BurnBlacklist, comp.BurnWhitelist))
                     continue;
 
@@ -738,12 +742,18 @@ public sealed partial class ThrusterSystem : EntitySystem
         if (args.OurFixtureId != BurnFixture)
             return;
 
+        if (args.OtherEntity == ent.Owner)
+            return;
+
         component.Colliding.Add(args.OtherEntity);
     }
 
     private void OnEndCollide(EntityUid uid, ThrusterComponent component, ref EndCollideEvent args)
     {
         if (args.OurFixtureId != BurnFixture)
+            return;
+
+        if (args.OtherEntity == ent.Owner)
             return;
 
         component.Colliding.Remove(args.OtherEntity);

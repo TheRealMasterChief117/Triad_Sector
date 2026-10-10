@@ -47,9 +47,15 @@ public sealed class ThrusterBlockingRayData(double angle, Vector2 offset, int qu
     /// <summary>
     /// How much is the ray offset from the 'origin' of the entity's position?
     /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
+    /// </summary>
+    public float OffsetX = offset.X;
+
+    /// <summary>
+    /// How much is the ray offset from the 'origin' of the entity's position?
+    /// Useful for large thrusters where their 'origin' is on the tile they rotate by.
     /// +y is an offset in the direction of the fire
     /// </summary>
-    public Vector2 Offset = offset;
+    public float OffsetY = offset.Y;
 
     /// <summary>
     /// How much is this ray worth if it can see space

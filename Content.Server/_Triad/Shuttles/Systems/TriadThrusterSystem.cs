@@ -38,7 +38,7 @@ public sealed partial class TriadThrusterSystem : EntitySystem
                 new ThrusterBlockingRayData(
                     angle: 0d,
                     offset: Vector2.Zero,
-                    quality: 2
+                    quality: 1
                 ),
                 // just far enough left or right to see past a 3 deep hole at an angle
                 new ThrusterBlockingRayData(
@@ -55,43 +55,43 @@ public sealed partial class TriadThrusterSystem : EntitySystem
                 new ThrusterBlockingRayData(
                     angle: 45d,
                     offset: new(0.0f, 0.25f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -45d,
                     offset: new(0.0f, 0.25f),
-                    quality: 2
+                    quality: 1
                 ),
                 // directly left and right
                 new ThrusterBlockingRayData(
                     angle: 90d,
                     offset: Vector2.Zero,
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -90d,
                     offset: Vector2.Zero,
-                    quality: 2
+                    quality: 1
                 ),
                 // 45 degrees left and right of reverse
                 new ThrusterBlockingRayData(
                     angle: 135d,
                     offset: new(0.0f, 0.25f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -135d,
                     offset: new(0.0f, 0.25f),
-                    quality: 2
+                    quality: 1
                 ),
                 // directly reverse
                 new ThrusterBlockingRayData(
                     angle: 180d,
                     offset: Vector2.Zero,
-                    quality: 2
+                    quality: 1
                 ),
             ],
-            3 // 3 min quality
+            4 // 4 min quality
         ),
 
         // Large thruster
@@ -101,12 +101,12 @@ public sealed partial class TriadThrusterSystem : EntitySystem
                 new ThrusterBlockingRayData(
                     angle: 0d,
                     offset: new(0.0f, -1f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: 0d,
                     offset: new(1f, -1f),
-                    quality: 2
+                    quality: 1
                 ),
                 // just far enough left or right to see past a 3 deep hole at an angle
                 new ThrusterBlockingRayData(
@@ -134,56 +134,56 @@ public sealed partial class TriadThrusterSystem : EntitySystem
                 new ThrusterBlockingRayData(
                     angle: 45d,
                     offset: new(0.5f, 0.0f),
-                    quality: 3
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -45d,
                     offset: new(0.5f, 0.0f),
-                    quality: 3
+                    quality: 1
                 ),
                 // directly left and right
                 new ThrusterBlockingRayData(
                     angle: 90d,
                     offset: new(1.0f, -1.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: 90d,
                     offset: new(1.0f, 0.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -90d,
                     offset: new(0.0f, -1.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -90d,
                     offset: new(1.0f, 0.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 // 45 degrees left and right of reverse
                 new ThrusterBlockingRayData(
                     angle: 135d,
                     offset: new(0.5f, 0.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 new ThrusterBlockingRayData(
                     angle: -135d,
                     offset: new(0.5f, 0.0f),
-                    quality: 2
+                    quality: 1
                 ),
                 // directly reverse
                 new ThrusterBlockingRayData(
                     angle: 180d,
                     offset: Vector2.Zero,
-                    quality: 2
+                    quality: 1
                 ),
                 // directly reverse
                 new ThrusterBlockingRayData(
                     angle: 180d,
                     offset: new(1.0f, 0.0f),
-                    quality: 2
+                    quality: 1
                 ),
             ],
             5 // 5 min quality
@@ -218,12 +218,13 @@ public sealed partial class TriadThrusterSystem : EntitySystem
 
             var direction = rayPreset.AngleInRadians();
 
-            var offset = rayPreset.Offset;
+            var offsetX = rayPreset.OffsetX;
+            var offsetY = rayPreset.OffsetY;
 
             // rotate the offset into the correct space
             var rayOffset = new Vector2(
-                offset.X * localRot.X - offset.Y * localRot.Y,
-                offset.X * localRot.Y + offset.Y * localRot.X);
+                offsetX * localRot.X - offsetY * localRot.Y,
+                offsetX * localRot.Y + offsetY * localRot.X);
 
             // Offset local coords based on grid, then convert it to map coordinates
             var offsetCoords = new EntityCoordinates(gridUID, localPos + rayOffset);

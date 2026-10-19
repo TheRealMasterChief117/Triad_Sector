@@ -8,7 +8,7 @@
   dollPrototype: MobIPCDummy
   skinColoration: Hues
   minAge: 1
-  maxAge: 240
+  maxAge: 600 # Triad - 600<240.
   oldAge: 50
   youngAge: 50
   maleFirstNames: IpcFirst
@@ -17,6 +17,7 @@
   naming: FirstDashLast
   sexes:
   - Unsexed
+  defaultHair: HairBald # Triad
 
 # The lack of a layer means that
 # this person cannot have round-start anything

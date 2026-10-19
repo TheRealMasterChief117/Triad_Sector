@@ -310,20 +310,23 @@ public sealed class TriadCCVars
     public static readonly CVarDef<int> MarketDataRetentionDays =
         CVarDef.Create("triad.market.retention_days", 90, CVar.SERVERONLY);
 
-    // Triad: round end
+    /// <summary>
+    /// Max limit of a person could have for safety boxes.
+    /// </summary>
+    public static readonly CVarDef<int> SafetyBoxLimit =
+        CVarDef.Create("triad.safety_box_limit", 5, CVar.REPLICATED);
+
     /// <summary>
     /// How many minutes the round-end countdown runs when nothing supplies its own length, which is
-    /// the auto call. A call from a comms console still takes the alert level's shuttle time. The
-    /// default matches upstream's ten minutes; values below one are read as one.
+    /// the auto call. A call from a comms console still takes the alert level's shuttle time.
     /// </summary>
     public static readonly CVarDef<int> RoundEndCountdownMinutes =
         CVarDef.Create("triad.round_end.countdown_minutes", 10, CVar.SERVERONLY);
 
-    // Triad: lobby
     /// <summary>
     /// When the lobby is on, start its round countdown at boot and after every restart even with
-    /// nobody connected, so the round starts and the sector sims on its own. Players who arrive still
-    /// land in the lobby and late-join. Off keeps upstream's wait for the first player.
+    /// nobody connected, so the round starts and sector simulations start. Players who arrive still
+    /// get sent to the lobby can late-join. False keeps the wait for the first player.
     /// </summary>
     public static readonly CVarDef<bool> LobbyStartWithoutPlayers =
         CVarDef.Create("triad.lobby.start_without_players", false, CVar.SERVERONLY);

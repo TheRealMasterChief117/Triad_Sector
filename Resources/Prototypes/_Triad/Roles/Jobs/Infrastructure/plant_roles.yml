@@ -26,6 +26,8 @@
   - Maintenance
   - External
   - Command
+  ranks:
+    RankDoI: []
   special:
   - !type:GiveItemOnHolidaySpecial
     holiday: FrontierBirthday
@@ -33,7 +35,7 @@
   - !type:AddComponentSpecial
     components:
       - type: CommandStaff
-      - type: NpcFactionMember
+      - type: AddNpcFactionOnMapInit
         factions:
         - TDF # Triad - not TDF, but friendly and works with them
       - type: CryoSleepRadioOverride
@@ -73,15 +75,22 @@
   - Atmospherics
   - Maintenance
   - External
+  ranks:
+    RankSeniorTechnician:
+    - !type:DepartmentTimeRequirement
+      department: Infrastructure
+      time: 288000 # 70 hours
+    RankTechnician:
+    - !type:DepartmentTimeRequirement
+      department: Infrastructure
+      time: 36000 # 10 hours
+    RankJuniorTechnician: []
   special:
   - !type:GiveItemOnHolidaySpecial
     holiday: FrontierBirthday
     prototype: FrontierBirthdayGift
   - !type:AddComponentSpecial
     components:
-      - type: NpcFactionMember
-        factions:
-        - TDF # Triad - not TDF, but friendly and works with them
       - type: CryoSleepRadioOverride
         overrides:
         - Engineering

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Server._HL.Shipyard;
-using Content.Server._Triad.Shipyard;
+using Content.Server._Triad.Shipyard.Load;
+using Content.Server._Triad.Shipyard.Persistence;
 using Content.Server.Shuttles.Components;
 using Content.Shared._Crescent.ShipShields;
 using Content.Shared._NF.Shipyard;
@@ -15,11 +16,9 @@ namespace Content.Server._NF.Shipyard.Systems;
 
 public sealed partial class ShipyardSystem : SharedShipyardSystem
 {
-    [Dependency] private Content.Server._Triad.Shipyard.Load.ShipLoadRespawnSystem _shipLoadRespawn = default!;
+    [Dependency] private ShipLoadRespawnSystem _shipLoadRespawn = default!;
     [Dependency] private UseDelaySystem _useDelay = default!;
-    // Triad: legacy import. ShipSizeSystem is already injected on the drydock partial as
-    // _drydockSizes and RA0032 forbids a second [Dependency] of one type across a partial class.
-    [Dependency] private Content.Server._Triad.Shipyard.Persistence.ITriadShipyardConsumedStore _consumedStore = default!;
+    [Dependency] private ITriadShipyardConsumedStore _consumedStore = default!;
 
     /// <summary>
     /// Writes a legacy save's grid YAML to a temporary file and loads it the way a purchase loads its ship file.

@@ -208,25 +208,39 @@ public sealed partial class ContrabandPermitSystem : SharedContrabandPermitSyste
             if (ent == gridUid || xform.GridUid != gridUid)
                 continue;
 
-            if (holderMind == null || !IsIssuedTo(comp, account, characterName))
-            {
-                seized.Add(ent);
+            if (!_transformQuery.TryComp(ent, out var entXForm) || entXForm.GridUid != gridUid)
                 continue;
+
+            InitializePermitItem((ent, comp), user);
+        }
+    }
+
+    public void InitializePermitItem(Entity<ContrabandPermitItemComponent> permitItem, EntityUid user)
+    {
+        var comp = permitItem.Comp;
+        comp.PermitOwner = user;
+
+        if (_mind.TryGetMind(user, out var mindId, out var mindComp))
+        {
+            comp.PermitOwnerMind = mindId;
+
+            // Log if the names are different
+            if (mindComp.CharacterName != comp.PermitOwnerName)
+            {
+                var message = $"{ToPrettyString(user):player} owns a contraband permit with a different logged name." +
+                    $" (Permit Owner Name: {comp.PermitOwnerName}, Player Name: {mindComp.CharacterName})"
+                    + " Possible abuse of the ship saving system may be at play here.";
+
+                _chat.SendAdminAlert(message);
+                _adminLog.Add(LogType.EntitySpawn, LogImpact.Medium, $"{message}");
             }
 
-            comp.PermitOwner = user;
-            comp.PermitOwnerMind = holderMind;
-            comp.PermitOwnerAccount = account;
-            Dirty(ent, comp);
-            AddPermitRecordToSectorService(user, (ent, comp));
+            // Re-stamp so a transferred ship only alerts once, not on every future load
+            comp.PermitOwnerName = mindComp.CharacterName ?? comp.PermitOwnerName;
         }
 
-        foreach (var uid in seized)
-        {
-            _adminLog.Add(LogType.EntityDelete, LogImpact.Medium,
-                $"Seized {ToPrettyString(uid)} from {ToPrettyString(gridUid)}: its contraband permit was not issued to {ToPrettyString(user):player}, who took the ship.");
-            Del(uid);
-        }
+        Dirty(permitItem);
+        AddPermitRecordToSectorService(user, permitItem);
     }
 
     /// <summary>
@@ -242,8 +256,6 @@ public sealed partial class ContrabandPermitSystem : SharedContrabandPermitSyste
         return !string.IsNullOrEmpty(characterName) && permit.PermitOwnerName == characterName;
     }
 
-    // Triad: removed, no callers since the legacy ship save was deleted
-    /*
     public void ClearPermitItemsOnGrid(EntityUid gridUid, EntityUid user)
     {
         if (!_gridQuery.HasComp(gridUid))
@@ -265,26 +277,8 @@ public sealed partial class ContrabandPermitSystem : SharedContrabandPermitSyste
             if (!_transformQuery.TryComp(ent, out var entXForm) || entXForm.GridUid != gridUid)
                 continue;
 
-            if (comp.PermitOwnerMind != null && _mind.TryGetMind(user, out var userMindId, out _))
-            {
-                if (userMindId != comp.PermitOwnerMind)
-                {
-                    toDelete.Add(ent);
-                    continue;
-                }
-            }
-            else if (user != comp.PermitOwner)
-            {
+            if (IsInvalidPermit((ent, comp), user))
                 toDelete.Add(ent);
-                continue;
-            }
-
-            // If the permit item somehow doesn't have permittable or it was set to false
-            if (!TryComp<ContrabandPermittableComponent>(ent, out var permittable) || !permittable.Permittable)
-            {
-                toDelete.Add(ent);
-                continue;
-            }
         }
 
         foreach (var uid in toDelete)
@@ -292,23 +286,14 @@ public sealed partial class ContrabandPermitSystem : SharedContrabandPermitSyste
             Del(uid);
         }
     }
-    */
 
     /// <summary>
-    /// Whether a permitted item may go away with a ship: the permit has to belong to whoever the ship
-    /// is being put away for, and the item has to still be permittable. Judged per item so the drydock
-    /// store can apply this rule inside its own purge rather than as a second walk of the grid.
+    /// Whether a permitted item may delete with a ship. The permit must belong to whoever the ship is being saved for.
+    /// It first checks for the given holder's mind. If a mind isn't given, it'll check the owner account's Guid against the mind of the permit owner's mind.
     ///
-    /// <para>The holder is the strictest identity the caller can vouch for. A store made at a console
-    /// has someone standing at it, so <paramref name="holderMind"/> is theirs and the permit's mind has
-    /// to be the same one, which is the ship-save path's rule. An impound or the round-end sweep has
-    /// nobody, so any character of <paramref name="ownerAccount"/> will do; the original owner is read
-    /// because a player who has moved on to another character has had the old mind's current user
-    /// cleared.</para>
-    ///
-    /// <para>A permit whose owner cannot be resolved to a mind does not travel. That is every permit
-    /// on a hull loaded from a file and not yet re-stamped by <see cref="InitializePermitItemsOnGrid"/>,
-    /// since the owner fields are session-local and never serialized.</para>
+    /// A permit whose owner cannot be resolved to a mind is deleted. That is every permit
+    /// on a hull loaded from a file and not yet initalized by <see cref="InitializePermitItemsOnGrid"/>,
+    /// since the owner fields are session-local and never serialized.
     /// </summary>
     public bool PermitTravelsWith(Entity<ContrabandPermitItemComponent> item, EntityUid? holderMind, Guid ownerAccount)
     {
@@ -327,6 +312,28 @@ public sealed partial class ContrabandPermitSystem : SharedContrabandPermitSyste
 
         return TryComp<MindComponent>(mindId, out var mind)
             && (mind.OriginalOwnerUserId ?? mind.UserId)?.UserId == ownerAccount;
+    }
+
+    public bool IsInvalidPermit(Entity<ContrabandPermitItemComponent> permitItem, EntityUid user)
+    {
+        var comp = permitItem.Comp;
+        comp.PermitOwner = user;
+
+        if (comp.PermitOwnerMind != null && _mind.TryGetMind(user, out var userMindId, out _))
+        {
+            if (userMindId != comp.PermitOwnerMind)
+                return true;
+        }
+        else if (user != comp.PermitOwner)
+        {
+            return true;
+        }
+
+        // If the permit item somehow doesn't have permittable or it was set to false
+        if (!TryComp<ContrabandPermittableComponent>(permitItem.Owner, out var permittable) || !permittable.Permittable)
+            return true;
+
+        return false; // Valid!
     }
 
     private void SendConsoleRadioMessage(EntityUid console, string message)

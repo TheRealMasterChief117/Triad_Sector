@@ -68,15 +68,16 @@
   - type: Tag
     tags:
     - VimPilot
-  - type: NightVision # Gen 3 wide-quadtube
+  - type: NightVision
     relayOverlay: false
     goggleEffect: true
-    viewCircleRadius: 450
-    viewCircleCount: 4
-    viewCircleSpacing: 280
+    viewCircleRadius: 1080
+    viewCircleCount: 1
     action: ActionToggleNightVision
-    phosphorColor: "#00FF00"
-    lightingColor: "#FFFFFF32"
+    phosphorColor: "#a3a3a3" # Bat vision
+    lightingColor: "#525252"
+    activateSound: null
+    deactivateSound: null
 
 - type: entity
   name: bee
@@ -175,10 +176,10 @@
   - type: NpcFactionMember
     factions:
     - SimpleHostile
+    - AnimalFriend # MACRO
   - type: Bloodstream
     bloodMaxVolume: 0.1
   - type: ZombieImmune
-
 
 - type: entity
   name: chicken
@@ -1329,6 +1330,7 @@
   - type: NpcFactionMember
     factions:
     - SimpleHostile
+    - AnimalFriend # MACRO
 
 - type: entity
   name: genetic ancestor
@@ -1940,15 +1942,16 @@
       Taco: RatTaco
       Burger: RatBurger
       Skewer: RatSkewer
-  - type: NightVision # Gen 3 wide-quadtube
+  - type: NightVision
     relayOverlay: false
     goggleEffect: true
-    viewCircleRadius: 450
-    viewCircleCount: 4
-    viewCircleSpacing: 280
+    viewCircleRadius: 1080
+    viewCircleCount: 1
     action: ActionToggleNightVision
-    phosphorColor: "#00FF00"
-    lightingColor: "#FFFFFF32"
+    phosphorColor: "#a3a3a3"
+    lightingColor: "#525252"
+    activateSound: null
+    deactivateSound: null
 
 - type: entity
   parent: MobMouse
@@ -2619,15 +2622,16 @@
       groups:
         Brute: -0.07
         Burn: -0.07
-  - type: NightVision # Gen 3 wide-quadtube
+  - type: NightVision
     relayOverlay: false
     goggleEffect: true
-    viewCircleRadius: 450
-    viewCircleCount: 4
-    viewCircleSpacing: 280
+    viewCircleRadius: 1080
+    viewCircleCount: 1
     action: ActionToggleNightVision
-    phosphorColor: "#00FF00"
-    lightingColor: "#FFFFFF32"
+    phosphorColor: "#b98888"
+    lightingColor: "#525252"
+    activateSound: null
+    deactivateSound: null
 
 - type: entity
   parent: MobSpiderBase

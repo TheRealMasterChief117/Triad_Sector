@@ -1,6 +1,5 @@
 using Content.Shared._NF.Shipyard.Events;
 using Content.Shared._Triad.Shipyard.Save;
-using System.Linq;
 using Robust.Shared.ContentPack;
 using Robust.Shared.Utility;
 using YamlDotNet.RepresentationModel;

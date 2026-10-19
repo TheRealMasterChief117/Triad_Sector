@@ -64,3 +64,19 @@
   image: /Textures/_Triad/PlayerFactions/SHI.png
   color: "#4eb930"
   whitelisted: true
+
+- type: company
+  id: TheWingedChoir
+  name: The Winged Choir
+  description: thewingedchoir-description
+  image: /Textures/_Triad/PlayerFactions/TheWingedChoir.png
+  color: "#FFFFE3"
+  whitelisted: true
+
+- type: company
+  id: Tourists
+  name: Tourists
+  description: tourists-description
+  image: /Textures/_Triad/PlayerFactions/Tourists.png
+  color: "#ff0abe"
+  whitelisted: true

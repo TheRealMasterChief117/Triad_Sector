@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Content.Server._HL.Shipyard;
+using Content.Server._Triad.Shipyard;
 using Content.Server._Triad.Shipyard.Load;
 using Content.Server._Triad.Shipyard.Persistence;
 using Content.Server.Shuttles.Components;

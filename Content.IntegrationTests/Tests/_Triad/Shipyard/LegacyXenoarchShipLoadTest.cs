@@ -5,7 +5,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Content.Server._HL.Shipyard;
+using Content.Server._Triad.Shipyard;
 using Content.Shared.Xenoarchaeology.Artifact.Components;
 using Robust.Shared.ContentPack;
 using Robust.Shared.EntitySerialization.Systems;

@@ -1,7 +1,7 @@
-using Content.Server._HL.Shipyard;
+using Content.Server._Triad.Shipyard;
 using NUnit.Framework;
 
-namespace Content.Tests.Server._HL.Shipyard;
+namespace Content.Tests.Server._Triad.Drydock;
 
 /// <summary>
 /// Covers the load-side scrub, whose risk is the YAML parse/emit round-trip rather than the pruning

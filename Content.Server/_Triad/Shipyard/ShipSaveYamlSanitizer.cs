@@ -9,7 +9,7 @@ using Robust.Shared.Serialization.Markdown.Value;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
-namespace Content.Server._HL.Shipyard;
+namespace Content.Server._Triad.Shipyard;
 
 /// <summary>
 /// The inbound scrub for legacy ship files: strips nodes a current build would never write, on the
@@ -83,6 +83,14 @@ public static class ShipSaveYamlSanitizer
     private static readonly HashSet<string> LegacyRemovedEntityPrototypes = new(StringComparer.Ordinal)
     {
         "ActionArtifactActivate",
+    };
+
+    private static readonly string[] ArtifactGraphFields =
+    {
+        "nodeVertices",
+        "nodeAdjacencyMatrix",
+        "cachedActiveNodes",
+        "cachedSegments",
     };
 
     // Component types the 2026-08 xenoarchaeology rework deleted from the codebase. A ship saved on
@@ -161,7 +169,8 @@ public static class ShipSaveYamlSanitizer
         var scrubbed = StripLegacyRemovedNodes(protoSeq, removedEntityUids);
         return scrubbed
                + PruneContainerReferencesToRemovedEntities(protoSeq, removedEntityUids)
-               + StampMapInitialized(root, protoSeq);
+               + StampMapInitialized(root, protoSeq)
+               + ResetArtifactGraphsNamingMissingNodes(protoSeq); // Triad
     }
 
     /// <summary>
@@ -273,7 +282,6 @@ public static class ShipSaveYamlSanitizer
         return scrubbed;
     }
 
-    // Triad: artifact graph reset
     /// <summary>
     /// Resets the node graph of every artifact whose <c>nodeVertices</c> names an entity missing from
     /// the file, and drops its unlock session, so the artifact loads owing a fresh graph. A slot naming

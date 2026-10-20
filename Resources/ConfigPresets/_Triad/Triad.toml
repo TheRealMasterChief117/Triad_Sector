@@ -5,11 +5,11 @@ desc = "Triad Sector is a unique twist on the traditional Space Station gameplay
 # InitializeGamePreset; without it the lobby-less path forces "sandbox" and ignores defaultpreset.
 lobbyenabled = false
 lobbyduration = 180
-defaultpreset = "TriadStandard"
+# defaultpreset = "TriadStandard"
 current_year_offset = 802
 # Triad: GameLoop skips the whole tick body when IGameTiming.Paused, ProcessPendingTasks included,
 # so in-flight work stalls until someone connects. The sector keeps its own time.
-auto_pause_empty = false
+# auto_pause_empty = true
 
 [game.panic_bunker]
 enabled = false

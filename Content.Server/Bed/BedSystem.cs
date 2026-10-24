@@ -23,12 +23,7 @@ namespace Content.Server.Bed
         public override void Initialize()
         {
             base.Initialize();
-            
-            // Triad - update appearance for ship loading
-            SubscribeLocalEvent<StasisBedComponent, ComponentStartup>((uid, _, _) =>
-                UpdateAppearance(uid, this.IsPowered(uid, EntityManager)));
-            // Triad end
-                
+
             _sleepingQuery = GetEntityQuery<SleepingComponent>();
         }
 

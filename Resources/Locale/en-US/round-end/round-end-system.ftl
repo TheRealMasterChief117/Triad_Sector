@@ -8,7 +8,7 @@ round-end-system-shuttle-already-called-announcement = An emergency shuttle has 
 round-end-system-shuttle-auto-called-announcement = Coronal mass ejection detected. Impact ETA: {$time} {$units}. Return to port and enter cryogenic preservation for your safety.
 # round-end-system-shuttle-recalled-announcement = The Monolithic Emission has receded.
 round-end-system-shuttle-recalled-announcement = Updated solar forecast. The coronal mass ejection will miss the district. Normal operations may resume.
-round-end-system-shuttle-sender-announcement = Sector
+round-end-system-shuttle-sender-announcement = District
 round-end-system-round-restart-eta-announcement = Restarting the round in {$time} {$units}...
 
 eta-units-minutes = minutes

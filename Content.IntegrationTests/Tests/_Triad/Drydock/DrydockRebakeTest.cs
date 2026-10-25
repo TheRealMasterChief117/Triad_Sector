@@ -197,7 +197,7 @@ namespace Content.IntegrationTests.Tests._Triad.Drydock
             {
                 Assert.That(secondStart, Is.EqualTo(DrydockRebakeStart.AlreadyRunning), "One sweep at a time.");
                 Assert.That(Outcome(report, ship), Is.EqualTo(DrydockRebakeShipResult.Stale));
-                Assert.That(report.Completed, Is.True, "A stale ship is normal and the sweep carries on.");
+                Assert.That(report?.Completed, Is.True, "A stale ship is normal and the sweep carries on.");
             });
 
             Assert.That(await Kinds(pair, ship), Is.EqualTo(new[] { DrydockRevisionKind.PlayerStore, DrydockRevisionKind.PlayerStore }),

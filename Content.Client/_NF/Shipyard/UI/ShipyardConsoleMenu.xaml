@@ -140,25 +140,16 @@
                     Disabled="True" />
         </BoxContainer>
         -->
-
-        <!-- Footer -->
-        <BoxContainer Orientation="Vertical" Margin="0 5 0 0" >
-            <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
-            <BoxContainer Orientation="Horizontal" Margin="10 5 5 0" VerticalAlignment="Bottom">
-                <Label Text="{Loc 'shipyard-menu-flavor-left'}" StyleClasses="WindowFooterText" />
-                <Label Text="{Loc 'apc-menu-flavor-right'}" StyleClasses="WindowFooterText"
-                       HorizontalAlignment="Right" HorizontalExpand="True"  Margin="0 0 5 0" />
-                <TextureRect StyleClasses="NTLogoDark" Stretch="KeepAspectCentered"
-                             VerticalAlignment="Center" HorizontalAlignment="Right" SetSize="19 19"/>
-            </BoxContainer>
-        </BoxContainer>
     </BoxContainer>
     <!-- Triad: drydock tab. One list, one row per berth. The ship on the inserted card's deed is a
          card at the top with a single Store dropdown, or, for a blank card while the operator has a
          ship out, that ship with Transfer deed; everything rarer sits behind a row's menu.
          Berths and the pending transfers are the operator's own, filled by the server. -->
-    <Control Name="DrydockTabRoot">
-    <BoxContainer Name="DrydockTab" Orientation="Vertical" Margin="5 0 5 0">
+    <PanelContainer Name="DrydockTabRoot" VerticalExpand="True" HorizontalExpand="True">
+        <PanelContainer.PanelOverride>
+            <gfx:StyleBoxFlat BorderThickness="2" BorderColor="#333333" BackgroundColor="#141414"/>
+        </PanelContainer.PanelOverride>
+        <BoxContainer Name="DrydockTab" Orientation="Vertical" Margin="5 0 5 0">
         <PanelContainer Name="DeedShipPanel" Visible="False" Margin="0 8 0 6">
             <PanelContainer.PanelOverride>
                 <gfx:StyleBoxFlat BorderThickness="2" BorderColor="#3e5e82" BackgroundColor="#1a2430"/>
@@ -192,18 +183,8 @@
                 <!-- Rows are added by PopulateBerths -->
             </BoxContainer>
         </ScrollContainer>
-        <!-- The same footer the purchase tab draws, so both tabs end the same way. -->
-        <BoxContainer Orientation="Vertical" Margin="0 5 0 0" >
-            <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
-            <BoxContainer Orientation="Horizontal" Margin="10 5 5 0" VerticalAlignment="Bottom">
-                <Label Text="{Loc 'shipyard-menu-flavor-left'}" StyleClasses="WindowFooterText" />
-                <Label Text="{Loc 'apc-menu-flavor-right'}" StyleClasses="WindowFooterText"
-                       HorizontalAlignment="Right" HorizontalExpand="True"  Margin="0 0 5 0" />
-                <TextureRect StyleClasses="NTLogoDark" Stretch="KeepAspectCentered"
-                             VerticalAlignment="Center" HorizontalAlignment="Right" SetSize="19 19"/>
-            </BoxContainer>
-        </BoxContainer>
     </BoxContainer>
+    </PanelContainer>
     <!-- Triad: the lockout. Shown when the inserted card's ship belongs to another account, and with
          its own lines when a voucher is in the slot or the operator is barred from the drydock. It
          swallows input, but the server refuses every message under it regardless; this is what the
@@ -225,7 +206,6 @@
             <Label Name="LockoutBody" Text="{Loc 'shipyard-console-lockout-body'}" Modulate="#d08080" Align="Center" Margin="0 6 0 0" />
         </BoxContainer>
     </PanelContainer>
-    </Control>
     </TabContainer>
         </PanelContainer>
     </PanelContainer>

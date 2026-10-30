@@ -138,7 +138,7 @@
                             <!-- Triad: Columns 5 to 4, with the Unassign button removed. -->
                             <GridContainer Columns="4"
                                     HorizontalExpand="True"
-                                    Margin="0 8 0 2">
+                                    Margin="8 8 8 8">
                                 <Button Name="TargetIdButton"
                                         Access="Public"
                                         StyleClasses="ButtonSquare"/>
@@ -186,7 +186,7 @@
                     <PanelContainer.PanelOverride>
                         <gfx:StyleBoxFlat BorderThickness="2"
                                 BorderColor="#333333"
-                                BackgroundColor="#141414"/>
+                                BackgroundColor="#181818"/>
                     </PanelContainer.PanelOverride>
                     <BoxContainer Name="DrydockTab"
                             Orientation="Vertical"
@@ -195,30 +195,33 @@
                                 Visible="False"
                                 Margin="0 8 0 6">
                             <PanelContainer.PanelOverride>
-                                <gfx:StyleBoxFlat BorderThickness="2"
-                                        BorderColor="#3e5e82"
-                                        BackgroundColor="#1a2430"/>
+                                <gfx:StyleBoxFlat BorderThickness="3" BorderColor="#333333" BackgroundColor="#333333"/>
                             </PanelContainer.PanelOverride>
-                            <BoxContainer Orientation="Horizontal"
-                                    Margin="10 6"
-                                    VerticalAlignment="Center">
-                                <RichTextLabel Name="DeedShipLabel"
-                                        HorizontalExpand="True"
-                                        VerticalAlignment="Center"/>
-                                <!-- Store is the dropdown itself: it lists every free berth, the ones too small greyed. -->
-                                <ui:DrydockMenuButton Name="StoreButton"
-                                        StyleClasses="ButtonSquare ButtonPrimary"
-                                        MinWidth="130"
-                                        AlignRight="True"/>
-                                <!-- In Store's place when the card carries no deed and the operator has a ship out:
-                     moves that ship's deed onto the card, wherever the ship is. -->
-                                <Button Name="ReissueButton"
-                                        Visible="False"
-                                        StyleClasses="ButtonSquare ButtonPrimary"
-                                        MinWidth="130"
-                                        Text="{Loc 'shipyard-console-reissue-button'}"
-                                        ToolTip="{Loc 'shipyard-console-reissue-tooltip'}"/>
-                            </BoxContainer>
+                            <PanelContainer Margin="1 1 1 1">
+                                <PanelContainer.PanelOverride>
+                                    <gfx:StyleBoxFlat BorderThickness="3" BorderColor="#636363" BackgroundColor="#141414"/>
+                                </PanelContainer.PanelOverride>
+                                <BoxContainer Orientation="Horizontal"
+                                        Margin="10 6"
+                                        VerticalAlignment="Center">
+                                    <RichTextLabel Name="DeedShipLabel"
+                                            HorizontalExpand="True"
+                                            VerticalAlignment="Center"/>
+                                    <!-- Store is the dropdown itself: it lists every free berth, the ones too small greyed. -->
+                                    <ui:DrydockMenuButton Name="StoreButton"
+                                            StyleClasses="ButtonSquare ButtonPrimary"
+                                            MinWidth="130"
+                                            AlignRight="True"/>
+                                    <!-- In Store's place when the card carries no deed and the operator has a ship out:
+                        moves that ship's deed onto the card, wherever the ship is. -->
+                                    <Button Name="ReissueButton"
+                                            Visible="False"
+                                            StyleClasses="ButtonSquare ButtonPrimary"
+                                            MinWidth="130"
+                                            Text="{Loc 'shipyard-console-reissue-button'}"
+                                            ToolTip="{Loc 'shipyard-console-reissue-tooltip'}"/>
+                                </BoxContainer>
+                            </PanelContainer>
                         </PanelContainer>
 
                         <!-- One card per ship of the operator's in the impound lot, built by PopulateImpounds. -->

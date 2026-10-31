@@ -56,10 +56,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
         SubscribeLocalEvent<ActionsComponent, ComponentShutdown>(OnShutdown);
 
-        SubscribeLocalEvent<ActionComponent, ActionValidateEvent>(OnValidate);
-        SubscribeLocalEvent<InstantActionComponent, ActionValidateEvent>(OnInstantValidate);
-        SubscribeLocalEvent<EntityTargetActionComponent, ActionValidateEvent>(OnEntityValidate);
-        SubscribeLocalEvent<WorldTargetActionComponent, ActionValidateEvent>(OnWorldValidate);
+        SubscribeLocalEvent<ActionsComponent, ComponentGetState>(OnActionsGetState);
 
         SubscribeLocalEvent<InstantActionComponent, ComponentGetState>(OnInstantGetState);
         SubscribeLocalEvent<EntityTargetActionComponent, ComponentGetState>(OnEntityTargetGetState);
@@ -437,87 +434,15 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     public bool ValidateEntityTarget(EntityUid user, EntityUid target, Entity<EntityTargetActionComponent> actionEnt)
     {
-        if ((ent.Comp.CheckConsciousness && !_actionBlocker.CanConsciouslyPerformAction(args.User))
-            || (ent.Comp.CheckCanInteract && !_actionBlocker.CanInteract(args.User, null)))
-            args.Invalid = true;
-    }
-
-    private void OnInstantValidate(Entity<InstantActionComponent> ent, ref ActionValidateEvent args)
-    {
-        _adminLogger.Add(LogType.Action,
-            $"{ToPrettyString(args.User):user} is performing the {Name(ent):action} action provided by {ToPrettyString(args.Provider):provider}.");
-    }
-
-    private void OnEntityValidate(Entity<EntityTargetActionComponent> ent, ref ActionValidateEvent args)
-    {
-        // let WorldTargetAction handle it
-        if (ent.Comp.Event is not {} ev)
-        {
-            DebugTools.Assert(HasComp<WorldTargetActionComponent>(ent), $"Entity-world targeting action {ToPrettyString(ent)} requires WorldTargetActionComponent");
-            return;
-        }
-
-        if (args.Input.EntityTarget is not {} netTarget)
-        {
-            args.Invalid = true;
-            return;
-        }
-
-        var user = args.User;
-
-        var target = GetEntity(netTarget);
-
-        var targetWorldPos = _transform.GetWorldPosition(target);
-        _rotateToFace.TryFaceCoordinates(user, targetWorldPos);
-
-        if (!ValidateEntityTarget(user, target, ent))
-            return;
-
-        _adminLogger.Add(LogType.Action,
-            $"{ToPrettyString(user):user} is performing the {Name(ent):action} action (provided by {ToPrettyString(args.Provider):provider}) targeted at {ToPrettyString(target):target}.");
-
-        ev.Target = target;
-    }
-
-    private void OnWorldValidate(Entity<WorldTargetActionComponent> ent, ref ActionValidateEvent args)
-    {
-        if (args.Input.EntityCoordinatesTarget is not { } netTarget)
-        {
-            args.Invalid = true;
-            return;
-        }
-
-        var user = args.User;
-        var target = GetCoordinates(netTarget);
-        _rotateToFace.TryFaceCoordinates(user, target.ToMapPos(EntityManager, _transform));
-
-        if (!ValidateWorldTarget(user, target, ent))
-            return;
-
-        // if the client specified an entity it needs to be valid
-        var targetEntity = GetEntity(args.Input.EntityTarget);
-        if (targetEntity != null && (
-            !TryComp<EntityTargetActionComponent>(ent, out var entTarget) ||
-            !ValidateEntityTarget(user, targetEntity.Value, (ent, entTarget))))
-        {
-            args.Invalid = true;
-            return;
-        }
-
-        _adminLogger.Add(LogType.Action,
-            $"{ToPrettyString(user):user} is performing the {Name(ent):action} action (provided by {args.Provider}) targeting {targetEntity} at {target:target}.");
-
-        if (ent.Comp.Event is {} ev)
-        {
-            ev.Target = target;
-            ev.Entity = targetEntity;
-        }
-    }
-
-    public bool ValidateEntityTarget(EntityUid user, EntityUid target, Entity<EntityTargetActionComponent> ent)
-    {
-        var (uid, comp) = ent;
-        if (!target.IsValid() || Deleted(target))
+        var comp = actionEnt.Comp;
+        if (!ValidateEntityTargetBase(user,
+                target,
+                comp.Whitelist,
+                comp.Blacklist,
+                comp.CheckCanInteract,
+                comp.CanTargetSelf,
+                comp.CheckCanAccess,
+                comp.Range))
             return false;
 
         var ev = new ValidateActionEntityTargetEvent(user, target);

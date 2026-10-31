@@ -23,7 +23,6 @@ namespace Content.Shared.Actions;
 public abstract partial class SharedActionsSystem : EntitySystem
 {
     [Dependency] protected IGameTiming GameTiming = default!;
-    [Dependency] private INetManager _net = default!; // Goobstation
     [Dependency] private ISharedAdminLogManager _adminLogger = default!;
     [Dependency] private ActionBlockerSystem _actionBlocker = default!;
     [Dependency] private ActionContainerSystem _actionContainer = default!;

@@ -474,31 +474,29 @@ public abstract partial class SharedActionsSystem : EntitySystem
         if (user == target)
             return canTargetSelf;
 
-        var targetAction = Comp<TargetActionComponent>(uid);
-        // not using the ValidateBaseTarget logic since its raycast fails if the target is e.g. a wall
-        if (targetAction.CheckCanAccess)
-            return _interaction.InRangeAndAccessible(user, target, range: targetAction.Range);
+        if (!checkCanAccess)
+        {
+            // even if we don't check for obstructions, we may still need to check the range.
+            var xform = Transform(user);
+            var targetXform = Transform(target);
 
-        // if not just checking pure range, let stored entities be targeted by actions
-        // if it's out of range it probably isn't stored anyway...
-        return _interaction.CanAccessViaStorage(user, target);
+            if (xform.MapID != targetXform.MapID)
+                return false;
+
+            if (range <= 0)
+                return true;
+
+            var distance = (_transformSystem.GetWorldPosition(xform) - _transformSystem.GetWorldPosition(targetXform)).Length();
+            return distance <= range;
+        }
+
+        return _interactionSystem.InRangeAndAccessible(user, target, range: range);
     }
 
     public bool ValidateWorldTarget(EntityUid user, EntityCoordinates coords, Entity<WorldTargetActionComponent> action)
     {
-        var targetAction = Comp<TargetActionComponent>(ent);
-        return ValidateBaseTarget(user, target, (ent, targetAction));
-    }
-
-    private bool ValidateBaseTarget(EntityUid user, EntityCoordinates coords, Entity<TargetActionComponent> ent)
-    {
-        var comp = ent.Comp;
-        if (comp.CheckCanAccess)
-            return _interaction.InRangeUnobstructed(user, coords, range: comp.Range);
-
-        // even if we don't check for obstructions, we may still need to check the range.
-        var xform = Transform(user);
-        if (xform.MapID != _transform.GetMapId(coords))
+        var comp = action.Comp;
+        if (!ValidateWorldTargetBase(user, coords, comp.CheckCanInteract, comp.CheckCanAccess, comp.Range))
             return false;
 
         var ev = new ValidateActionWorldTargetEvent(user, coords);

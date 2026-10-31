@@ -275,26 +275,15 @@
     priority: 3
 
 - type: entity
-  parent: BaseAction
   id: ActionDevour
   name: "[color=red]Devour[/color]"
   description: Attempt to break a structure with your jaws or swallow a creature.
   components:
-  - type: Action
+  - type: EntityTargetAction
     icon: { sprite : Interface/Actions/devour.rsi, state: icon }
     iconOn: { sprite : Interface/Actions/devour.rsi, state: icon-on }
-    itemIconStyle: BigAction
-    priority: 1
-  - type: TargetAction
-  - type: EntityTargetAction
-    canTargetSelf: false
-    whitelist:
-      components:
-      - MobState
-      - Door
-      tags:
-      - Wall
     event: !type:DevourActionEvent
+    priority: 1
 
 - type: entity
   categories: [ HideSpawnMenu ] # Frontier

@@ -16,7 +16,6 @@ public sealed partial class SiliconDeathSystem : EntitySystem
     [Dependency] private SleepingSystem _sleep = default!;
     [Dependency] private SiliconChargeSystem _silicon = default!;
     [Dependency] private HumanoidAppearanceSystem _humanoidAppearanceSystem = default!;
-    [Dependency] private DamageableSystem _damage = default!; // mono
 
     public override void Initialize()
     {
@@ -47,9 +46,7 @@ public sealed partial class SiliconDeathSystem : EntitySystem
         var deadEvent = new SiliconChargeDyingEvent(uid, batteryComp, batteryUid);
         RaiseLocalEvent(uid, deadEvent);
 
-        if (deadEvent.Cancelled
-            || siliconDeadComp.ModifierOnDead == null
-            || !TryComp<DamageableComponent>(uid, out var damageComp))
+        if (deadEvent.Cancelled)
             return;
 
         /*EntityManager.EnsureComponent<SleepingComponent>(uid); Monolith IPC rework edit start

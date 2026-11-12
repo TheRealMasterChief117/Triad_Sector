@@ -1,7 +1,7 @@
 - type: entity
   id: HandheldAutopulserProjectile
   name: plasma projectile
-  parent: BaseBullet
+  parent: BulletPlasmaHeavy # Triad
   categories: [ HideSpawnMenu ]
   components:
   - type: Projectile

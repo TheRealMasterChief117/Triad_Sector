@@ -1,46 +1,25 @@
+# Triad start - EG-4 plasma bolt
 - type: entity
-  name: 45_magnum bolt
-  id: BulletEnergyGun45_magnum
-  parent: BaseBullet
+  id: BulletPlasmaHeavyRevolver
+  parent: BulletPlasmaHeavy
   categories: [ HideSpawnMenu ]
   components:
-  - type: Reflective
-    reflective:
-    - Energy
-  - type: FlyBySound
-    sound:
-      collection: EnergyMiss
-      params:
-        volume: 5
   - type: Sprite
     sprite: Objects/Weapons/Guns/Projectiles/projectiles_tg.rsi
     layers:
     - state: heavylaser
       shader: unshaded
-  - type: Ammo
-  - type: Physics
-  - type: Fixtures
-    fixtures:
-      projectile:
-        shape:
-          !type:PhysShapeAabb
-          bounds: "-0.2,-0.2,0.2,0.2"
-        hard: false
-        mask:
-        - Impassable
-        - BulletImpassable
   - type: Projectile
-    impactEffect: BulletImpactEffectRedDisabler
+    impactEffect: BulletImpactEffectOrangeDisabler
     damage:
       types:
         Heat: 30
         Shock: 5
-    soundHit:
-      collection: MeatLaserImpact
+# Triad end
 
 - type: entity
   id: HeavyPulse
-  parent: BulletEnergyGunLaser
+  parent: BulletPlasmaHeavy
   name: Heavy Pulse Bolt
   categories: [ HideSpawnMenu ]
   components:
@@ -73,7 +52,7 @@
     - state: heavystun
       shader: unshaded
   - type: Projectile
-    impactEffect: BulletImpactEffectDisabler
+    impactEffect: BulletImpactEffectRedDisabler
     damage:
       types:
         Heat: 300
@@ -91,9 +70,9 @@
     muzzleLightEnergy: 15 # Triad
 
 - type: entity
-  id: BulletLaserSlug
-  parent: BulletEnergyGunLaser
-  name: energy slug
+  id: BulletPlasmaSlug
+  parent: BulletPlasmaHeavy
+  name: plasma slug
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
@@ -102,16 +81,16 @@
     - state: heavy
       shader: unshaded
   - type: Projectile
-    impactEffect: BulletImpactEffectDisabler
+    impactEffect: BulletImpactEffectOrangeDisabler
     damage:
       types:
         Heat: 55
         Structural: 300
 
 - type: entity
-  id: BulletLaserPellet
-  parent: BulletEnergyGunLaser
-  name: energy
+  id: BulletPlasmaPellet
+  parent: BulletPlasmaHeavy
+  name: plasma pellet
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
@@ -120,19 +99,19 @@
     - state: light
       shader: unshaded
   - type: Projectile
-    impactEffect: BulletImpactEffectDisabler
+    impactEffect: BulletImpactEffectOrangeDisabler
     damage:
       types:
         Heat: 15
         Structural: 12
 
 - type: entity
-  id: BulletLaserSpreadMono
+  id: BulletPlasmaSpreadMono
   categories: [ HideSpawnMenu ]
-  parent: BulletLaserPellet
+  parent: BulletPlasmaPellet
   components:
   - type: ProjectileSpread
-    proto: BulletLaserPellet
+    proto: BulletPlasmaPellet
     count: 5
     spread: 15
 

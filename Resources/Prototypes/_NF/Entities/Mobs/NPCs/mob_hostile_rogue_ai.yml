@@ -193,7 +193,7 @@
   abstract: true
   components:
   - type: ProjectileBatteryAmmoProvider
-    proto: BulletEnergyGunLaser
+    proto: BulletPlasmaHeavy
     fireCost: 100
 
 - type: entity
